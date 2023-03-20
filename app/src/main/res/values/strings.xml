@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">My Weather Forecast Application</string>
+    <string name="app_name">Weather Forecast Application</string>
+    <string name="titleSplashScreen">Full\nmoon\nnight</string>
 </resources>
