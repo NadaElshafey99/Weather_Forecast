@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    tools:context=".splashScreen.SplashScreen">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_SplashScreen"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/morocco"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toBottomOf="@+id/top_titleOfSplashScreen"
+        app:lottie_autoPlay="true"
+        app:lottie_rawRes="@raw/raining">
+
+    </com.airbnb.lottie.LottieAnimationView>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.034199726" />
+
+    <TextView
+        android:id="@+id/top_titleOfSplashScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="@string/titleSplashScreen"
+        android:textColor="@color/white"
+        android:textSize="26sp"
+        android:textStyle="normal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+    <TextView
+        android:id="@+id/large_degree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="156dp"
+        android:text="39°"
+        android:textColor="@color/white"
+        android:textSize="80sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline2" />
+
+    <ImageView
+        android:id="@+id/sunImage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="90dp"
+        android:src="@drawable/sun"
+        app:layout_constraintBottom_toBottomOf="@+id/large_degree"
+        app:layout_constraintStart_toEndOf="@+id/large_degree"
+        app:layout_constraintTop_toTopOf="@+id/large_degree" />
+
+    <ImageView
+        android:id="@+id/stromImage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="24dp"
+        android:src="@drawable/storm"
+        app:layout_constraintBottom_toBottomOf="@+id/sunImage"
+        app:layout_constraintStart_toEndOf="@+id/sunImage"
+        app:layout_constraintTop_toTopOf="@+id/sunImage"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/time1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="11:30am"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/sunImage"
+        app:layout_constraintEnd_toEndOf="@+id/sunImage"
+        app:layout_constraintStart_toStartOf="@+id/sunImage" />
+
+    <TextView
+        android:id="@+id/degree1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="30°"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/sunImage"
+        app:layout_constraintStart_toStartOf="@+id/sunImage"
+        app:layout_constraintTop_toBottomOf="@+id/sunImage" />
+
+    <TextView
+        android:id="@+id/time2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="8:00pm"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/stromImage"
+        app:layout_constraintEnd_toEndOf="@+id/stromImage"
+        app:layout_constraintStart_toStartOf="@+id/stromImage" />
+
+    <TextView
+        android:id="@+id/degree2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="12°"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/stromImage"
+        app:layout_constraintStart_toStartOf="@+id/stromImage"
+        app:layout_constraintTop_toBottomOf="@+id/stromImage" />
+
+    <TextView
+        android:id="@+id/morocco"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Morocco"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/large_degree"
+        app:layout_constraintEnd_toEndOf="@+id/large_degree"
+        app:layout_constraintStart_toStartOf="@+id/large_degree" />
+
+    <TextView
+        android:id="@+id/northAfrica"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="North African"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@+id/large_degree"
+        app:layout_constraintStart_toStartOf="@+id/large_degree"
+        app:layout_constraintTop_toBottomOf="@+id/large_degree" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.04622871" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.96107054" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
