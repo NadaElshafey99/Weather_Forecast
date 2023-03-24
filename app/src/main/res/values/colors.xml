@@ -10,4 +10,5 @@
     <color name="mainColor">#2B3467</color>
     <color name="lightMainColor">#BAD7E9</color>
     <color name="secondGradientColor">#CB2C74B3</color>
+    <color name="transparent">@android:color/transparent</color>
 </resources>

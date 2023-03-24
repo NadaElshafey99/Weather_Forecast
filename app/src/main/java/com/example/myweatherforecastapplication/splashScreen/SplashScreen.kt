@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.airbnb.lottie.LottieAnimationView
+import com.example.myweatherforecastapplication.MainActivity
 import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.homeScreen.view.HomeScreen
 
@@ -50,7 +51,7 @@ class SplashScreen : AppCompatActivity() {
         stormImage.animate().translationY(-2000F).setDuration(1000).startDelay = 4000
 
         Handler().postDelayed({
-            val intent = Intent(this@SplashScreen, HomeScreen::class.java)
+            val intent = Intent(this@SplashScreen, MainActivity::class.java)
             startActivity(intent)
             finish()
         }, 5000)
