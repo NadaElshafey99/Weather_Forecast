@@ -58,7 +58,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="90dp"
-        android:src="@drawable/sun"
+        android:src="@drawable/few_clouds"
         app:layout_constraintBottom_toBottomOf="@+id/large_degree"
         app:layout_constraintStart_toEndOf="@+id/large_degree"
         app:layout_constraintTop_toTopOf="@+id/large_degree" />
