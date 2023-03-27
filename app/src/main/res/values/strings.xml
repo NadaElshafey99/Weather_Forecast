@@ -8,4 +8,14 @@
     <string name="celis">°C</string>
     <string name="open">open navigation drawer</string>
     <string name="close">close navigation drawer</string>
+    <string name="pressure">Pressure</string>
+    <string name="wind">Wind</string>
+    <string name="humidity">Humidity</string>
+    <string name="cloud">Cloud</string>
+    <string name="uv">Ultra Violet</string>
+    <string name="visible">Visibility</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="sunset">Sunset</string>
+    <string name="feelsLike">Feels like</string>
+    <string name="degree">°</string>
 </resources>

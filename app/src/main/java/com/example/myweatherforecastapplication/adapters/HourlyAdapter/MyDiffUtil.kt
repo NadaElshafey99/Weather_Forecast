@@ -1,4 +1,4 @@
-package com.example.myweatherforecastapplication.adapters
+package com.example.myweatherforecastapplication.adapters.HourlyAdapter
 
 import androidx.recyclerview.widget.DiffUtil
 import com.example.myweatherforecastapplication.model.Current

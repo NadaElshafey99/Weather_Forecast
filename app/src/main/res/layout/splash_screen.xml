@@ -58,7 +58,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="90dp"
-        android:src="@drawable/few_clouds"
+        android:src="@drawable/clearsky"
         app:layout_constraintBottom_toBottomOf="@+id/large_degree"
         app:layout_constraintStart_toEndOf="@+id/large_degree"
         app:layout_constraintTop_toTopOf="@+id/large_degree" />
@@ -68,7 +68,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="24dp"
-        android:src="@drawable/storm"
+        android:src="@drawable/thunderstorm"
         app:layout_constraintBottom_toBottomOf="@+id/sunImage"
         app:layout_constraintStart_toEndOf="@+id/sunImage"
         app:layout_constraintTop_toTopOf="@+id/sunImage"

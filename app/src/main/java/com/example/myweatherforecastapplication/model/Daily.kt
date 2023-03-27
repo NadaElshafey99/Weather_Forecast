@@ -16,7 +16,7 @@ data class Daily (
     val windDeg: Long,
     val weather: List<Weather>,
     val clouds: Long,
-    val pop: Double,
+//    val pop: Double,
     val rain: Double,
     val uvi: Double
 )

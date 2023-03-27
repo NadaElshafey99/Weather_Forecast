@@ -11,7 +11,7 @@ class APIClient private constructor() : RemoteSourceInterface {
         return apiService.getCurrentWeather(
             33.44,
             -94.04,
-//            "hourly,daily",
+            "metric",
             "4a059725f93489b95183bbcb8c6829b9"
         )
     }
