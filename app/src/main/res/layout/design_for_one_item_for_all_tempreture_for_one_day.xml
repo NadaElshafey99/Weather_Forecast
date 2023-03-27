@@ -9,25 +9,22 @@
     android:layout_marginTop="5dp"
     android:layout_marginEnd="5dp"
     android:layout_marginBottom="5dp"
-    android:background="@color/transparent"
-    android:backgroundTint="@color/transparent"
     android:elevation="10dp"
+    app:cardBackgroundColor="@color/forBackground"
     app:cardCornerRadius="20dp"
-    app:cardElevation="1dp"
-    app:cardMaxElevation="1dp"
+    app:cardElevation="0dp"
+    app:cardMaxElevation="0dp"
     app:layout_marginBaseline="5dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/mainColor"
-        android:backgroundTint="@color/mainColor">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/icon_of_weather_for_one_item"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
@@ -37,14 +34,13 @@
             app:layout_constraintHorizontal_bias="0.513"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/time_for_one_item"
-            app:srcCompat="@drawable/storm" />
+            app:srcCompat="@drawable/thunderstorm" />
 
         <TextView
             android:id="@+id/time_for_one_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="6 AM"
             android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@+id/icon_of_weather_for_one_item"
@@ -56,7 +52,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="12° C"
             android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
