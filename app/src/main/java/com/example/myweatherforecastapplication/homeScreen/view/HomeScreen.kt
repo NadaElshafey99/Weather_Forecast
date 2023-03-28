@@ -18,9 +18,7 @@ import com.example.myweatherforecastapplication.adapters.DailyAdapter.DailyWeath
 import com.example.myweatherforecastapplication.adapters.HourlyAdapter.HourlyWeatherAdapter
 import com.example.myweatherforecastapplication.homeScreen.viewmodel.HomeScreenViewModel
 import com.example.myweatherforecastapplication.homeScreen.viewmodel.HomeScreenViewModelFactory
-import com.example.myweatherforecastapplication.model.Current
-import com.example.myweatherforecastapplication.model.Daily
-import com.example.myweatherforecastapplication.model.Repository
+import com.example.myweatherforecastapplication.model.*
 import com.example.myweatherforecastapplication.network.APIClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,6 +55,15 @@ class HomeScreen : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        simpleDate = SimpleDateFormat("EEEE dd")
+        simpleSunrise = SimpleDateFormat("hh:mm aa")
+        hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
+        dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
+        homeScreenViewModelFactory =
+            HomeScreenViewModelFactory(Repository.getInstance(APIClient.getInstance()))
+        homeScreenViewModel =
+            ViewModelProvider(this, homeScreenViewModelFactory).get(HomeScreenViewModel::class.java)
+
     }
 
     override fun onCreateView(
@@ -65,6 +72,31 @@ class HomeScreen : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home_screen, container, false)
+        initialUI(view)
+
+        lifecycleScope.launch(Dispatchers.IO)
+        {
+            try {
+                homeScreenViewModel.getCurrentWeather()
+            } catch (e: IOException) {
+                Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
+            }
+            withContext(Dispatchers.Main)
+            {
+
+                homeScreenViewModel.weather.observe(requireActivity()) { weather ->
+                    if (weather != null) {
+                        updateUI(weather)
+                    } else {
+                        Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+        return view
+    }
+
+    private fun initialUI(view: View) {
         hourlyRecyclerView = view.findViewById(R.id.hourlyRecyclerView)
         dailyRecyclerView = view.findViewById(R.id.dailyRecyclerView)
         countryName = view.findViewById(R.id.country_name)
@@ -81,100 +113,48 @@ class HomeScreen : Fragment() {
         currentSunrise = view.findViewById(R.id.current_sunRise)
         currentSunset = view.findViewById(R.id.current_sunSet)
         currentFeelsLike = view.findViewById(R.id.current_feelsLike)
-        simpleDate = SimpleDateFormat("EEEE dd")
-        simpleSunrise = SimpleDateFormat("hh:mm aa")
-        hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
-        dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
-        homeScreenViewModelFactory =
-            HomeScreenViewModelFactory(Repository.getInstance(APIClient.getInstance()))
-        homeScreenViewModel =
-            ViewModelProvider(this, homeScreenViewModelFactory).get(HomeScreenViewModel::class.java)
+    }
 
-        lifecycleScope.launch(Dispatchers.IO)
-        {
-//            homeScreenViewModel.getHourlyWeather()
-            try {
-                homeScreenViewModel.getCurrentWeather()
-            } catch (e: IOException) {
-                Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
-
-            }
-            withContext(Dispatchers.Main)
-            {
-
-                homeScreenViewModel.weather.observe(requireActivity()) { weather ->
-                    if (weather != null) {
-                        countryName.text = weather.timezone
-                        countryDegree.text = "${weather.current.temp} ${R.string.degree}"
-                        currentDay.text = simpleDate.format(weather.current.dt * 1000L)
-                        currentDescription.text = weather.current.weather.get(0).description
-                        hourlyList = weather.hourly as MutableList<Current>
-                        dailyList = weather.daily as MutableList<Daily>
-                        currentPressure.text = "${weather.current.pressure} hpa"
-                        currentHumidity.text = "${weather.current.humidity} %"
-                        currentWind.text = "${weather.current.wind_speed} m/s"
-                        currentCloud.text = "${weather.current.clouds} %"
-                        currentVisibility.text = "${weather.current.visibility} m"
-                        currentUV.text = "${weather.current.uvi}"
-                        currentSunset.text =
-                            simpleSunrise.format((weather.current.sunset?.times(1000L) ?: 0))
-                        currentSunrise.text =
-                            simpleSunrise.format(weather.current.sunrise?.times(1000L) ?: 0)
-                        currentFeelsLike.text = weather.current.feels_like.toString()
-                        hourlyWeatherAdapter.submitList(hourlyList)
-                        hourlyRecyclerView.apply {
-                            layoutManager = LinearLayoutManager(context).apply {
-                                orientation = RecyclerView.HORIZONTAL
-                                adapter = hourlyWeatherAdapter
-                            }
-                        }
-                        dailyWeatherAdapter.submitList(dailyList)
-                        dailyRecyclerView.apply {
-                            layoutManager = LinearLayoutManager(context).apply {
-                                orientation = RecyclerView.VERTICAL
-                                adapter = dailyWeatherAdapter
-                            }
-                        }
-
-                        var icon = weather.current.weather.get(0).icon.lowercase()
-                        when {
-                            icon.startsWith("01") -> {
-                                icon = "clearsky"
-                            }
-                            icon.startsWith("02") -> {
-                                icon = "fewclouds"
-                            }
-                            icon.startsWith("03") -> {
-                                icon = "scatteredclouds"
-                            }
-                            icon.startsWith("04") -> {
-                                icon = "brokenclouds"
-                            }
-                            icon.startsWith("09") -> {
-                                icon = "showerrain"
-                            }
-                            icon.startsWith("10") -> {
-                                icon = "rain"
-                            }
-                            icon.startsWith("11") -> {
-                                icon = "thunderstorm"
-                            }
-                            icon.startsWith("13") -> {
-                                icon = "snow"
-                            }
-                            icon.startsWith("50") -> {
-                                icon = "mist"
-                            }
-                        }
-                        val imageResource: Int =
-                            resources.getIdentifier(icon, "drawable", context?.packageName)
-                        iconDescribeWeather.setImageResource(imageResource)
-                    } else {
-                        Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
-                    }
-                }
+    fun updateUI(weather: Welcome) {
+        countryName.text = weather.timezone
+        countryDegree.text = "${weather.current.temp}"
+        currentDay.text = simpleDate.format(weather.current.dt * 1000L)
+        currentDescription.text = weather.current.weather.get(0).description
+        hourlyList = weather.hourly as MutableList<Current>
+        dailyList = weather.daily as MutableList<Daily>
+        currentPressure.text = "${weather.current.pressure} hpa"
+        currentHumidity.text = "${weather.current.humidity} %"
+        currentWind.text = "${weather.current.wind_speed} m/s"
+        currentCloud.text = "${weather.current.clouds} %"
+        currentVisibility.text = "${weather.current.visibility} m"
+        currentUV.text = "${weather.current.uvi}"
+        currentSunset.text =
+            simpleSunrise.format((weather.current.sunset?.times(1000L) ?: 0))
+        currentSunrise.text =
+            simpleSunrise.format(weather.current.sunrise?.times(1000L) ?: 0)
+        currentFeelsLike.text = weather.current.feels_like.toString()
+        hourlyWeatherAdapter.submitList(hourlyList)
+        hourlyRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = RecyclerView.HORIZONTAL
+                adapter = hourlyWeatherAdapter
             }
         }
-        return view
+        dailyWeatherAdapter.submitList(dailyList)
+        dailyRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = RecyclerView.VERTICAL
+                adapter = dailyWeatherAdapter
+            }
+        }
+
+        val icon = weather.current.weather.get(0).icon.lowercase()
+        val imageResource: Int =
+            resources.getIdentifier(
+                Icon.getIcon(icon),
+                "drawable",
+                context?.packageName
+            )
+        iconDescribeWeather.setImageResource(imageResource)
     }
 }
