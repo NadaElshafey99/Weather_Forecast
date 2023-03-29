@@ -48,13 +48,13 @@ class DailyWeatherAdapter(var context: Context) :
     }
 
     override fun onBindViewHolder(holder: DailyViewHolder, position: Int) {
-        repeat(7) {
+//        repeat(7) {
             val simpleDate = SimpleDateFormat("EE, dd")
             val currentDailyWeather: Daily = getItem(position)
             val currentDate = simpleDate.format(currentDailyWeather.dt * 1000L)
             holder.weatherDay.text = currentDate
-            holder.weatherMaxDegree.text = currentDailyWeather.temp.max.toString()
-            holder.weatherMinDegree.text = currentDailyWeather.temp.min.toString()
+            holder.weatherMaxDegree.text = "${currentDailyWeather.temp.max}°"
+            holder.weatherMinDegree.text = "${currentDailyWeather.temp.min}°"
             holder.weatherDesc.text = currentDailyWeather.weather.get(0).description
             val icon = currentDailyWeather.weather.get(0).icon.lowercase()
             val imageResource: Int =
@@ -65,7 +65,7 @@ class DailyWeatherAdapter(var context: Context) :
                 )
             holder.weatherIcon.setImageResource(imageResource)
 
-        }
+//        }
 
 
     }

@@ -1,5 +1,6 @@
 package com.example.myweatherforecastapplication.network
 
+import android.content.SharedPreferences
 import com.example.myweatherforecastapplication.model.Welcome
 
 class APIClient private constructor() : RemoteSourceInterface {
@@ -7,12 +8,12 @@ class APIClient private constructor() : RemoteSourceInterface {
         RetrofitHelper.getInstance().create(APIService::class.java)
     }
 
-    override suspend fun getCurrentWeather(): Welcome {
+    override suspend fun getCurrentWeather(lat: Double, lon: Double): Welcome {
         return apiService.getCurrentWeather(
-            33.44,
-            -94.04,
+            lat,
+            lon,
             "metric",
-            "4a059725f93489b95183bbcb8c6829b9"
+            "ca201421061f034c889bb5b55aec30f8"
         )
     }
 
