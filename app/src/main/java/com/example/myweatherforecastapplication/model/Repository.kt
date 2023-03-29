@@ -18,11 +18,7 @@ class Repository(
         }
     }
 
-    override suspend fun getWeather(): Welcome {
-       return remoteSource.getCurrentWeather()
+    override suspend fun getWeather(lat:Double,lon:Double): Welcome {
+       return remoteSource.getCurrentWeather(lat,lon)
     }
-
-   /* override suspend fun getHourlyWeather(): List<Current> {
-        return remoteSource.getCurrentWeather()
-    }*/
 }

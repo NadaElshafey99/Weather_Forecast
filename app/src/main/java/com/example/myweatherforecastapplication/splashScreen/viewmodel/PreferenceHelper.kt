@@ -8,7 +8,8 @@ object PreferenceHelper {
 
     val USER_LOCATION = "USER_LOCATION"
     val USER_NOTIFICATION = "NOTIFICATION"
-
+    val USER_LONGITUDE = "LONGITUDE"
+    val USER_LATITUDE = "LATITUDE"
     fun defaultPreference(context: Context): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(context)
 
@@ -36,12 +37,19 @@ object PreferenceHelper {
                 it.putString(USER_NOTIFICATION, value)
             }
         }
-
-   /* var SharedPreferences.clearValues
-        get() = { }
+    var SharedPreferences.currentLongitude
+        get() = getString(USER_LONGITUDE, "")
         set(value) {
             editMe {
-                it.clear()
+                it.putString(USER_LONGITUDE, value)
             }
-        }*/
+        }
+
+    var SharedPreferences.currentLatitude
+        get() = getString(USER_LATITUDE, "")
+        set(value) {
+            editMe {
+                it.putString(USER_LATITUDE, value)
+            }
+        }
 }

@@ -12,12 +12,12 @@ import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.model.Current
 import com.example.myweatherforecastapplication.model.Icon
 import java.text.SimpleDateFormat
+import java.util.*
 
 class HourlyWeatherAdapter(var context: Context) :
     ListAdapter<Current, HourlyWeatherAdapter.HourlyViewHolder>(
         MyDiffUtil()
     ) {
-
     class HourlyViewHolder(private val itemView: View) : RecyclerView.ViewHolder(itemView) {
         val weatherIcon: ImageView
             get() = itemView.findViewById(R.id.icon_of_weather_for_one_item)
@@ -41,23 +41,19 @@ class HourlyWeatherAdapter(var context: Context) :
     }
 
     override fun onBindViewHolder(holder: HourlyViewHolder, position: Int) {
-        repeat(24)
-        {
-            val simpleDate = SimpleDateFormat("hh aa")
-            val currentHourlyWeather: Current = getItem(position)
-            val currentDate = simpleDate.format(currentHourlyWeather.dt * 1000L)
-            holder.weatherDegree.text = currentHourlyWeather.temp.toString()
-            holder.weatherTime.text = currentDate.uppercase()
-            val icon = currentHourlyWeather.weather.get(0).icon.lowercase()
-            val imageResource: Int =
-                    context.resources.getIdentifier(
-                        Icon.getIcon(icon),
-                        "drawable",
-                        context.packageName
-                    )
-            holder.weatherIcon.setImageResource(imageResource)
-        }
-
+        val simpleDate = SimpleDateFormat("hh aa")
+        val currentHourlyWeather: Current = getItem(position)
+        val currentDate = simpleDate.format(currentHourlyWeather.dt * 1000L)
+        holder.weatherDegree.text = "${currentHourlyWeather.temp}°"
+        holder.weatherTime.text = currentDate.uppercase()
+        val icon = currentHourlyWeather.weather.get(0).icon.lowercase()
+        val imageResource: Int =
+            context.resources.getIdentifier(
+                Icon.getIcon(icon),
+                "drawable",
+                context.packageName
+            )
+        holder.weatherIcon.setImageResource(imageResource)
 
     }
 

@@ -1,5 +1,6 @@
 package com.example.myweatherforecastapplication.homeScreen.view
 
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,11 +21,16 @@ import com.example.myweatherforecastapplication.homeScreen.viewmodel.HomeScreenV
 import com.example.myweatherforecastapplication.homeScreen.viewmodel.HomeScreenViewModelFactory
 import com.example.myweatherforecastapplication.model.*
 import com.example.myweatherforecastapplication.network.APIClient
+import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper
+import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLatitude
+import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLongitude
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.text.SimpleDateFormat
+
+val CUSTOM_PREF_NAME = "settings"
 
 class HomeScreen : Fragment() {
 
@@ -46,21 +52,26 @@ class HomeScreen : Fragment() {
     private lateinit var iconDescribeWeather: ImageView
     private lateinit var hourlyWeatherAdapter: HourlyWeatherAdapter
     private lateinit var dailyWeatherAdapter: DailyWeatherAdapter
-    private var hourlyList: MutableList<Current>? = mutableListOf()
-    private var dailyList: MutableList<Daily>? = mutableListOf()
     private lateinit var simpleDate: SimpleDateFormat
     private lateinit var simpleSunrise: SimpleDateFormat
     private lateinit var homeScreenViewModel: HomeScreenViewModel
     private lateinit var homeScreenViewModelFactory: HomeScreenViewModelFactory
-
+    private var hourlyList: MutableList<Current>? = mutableListOf()
+    private var dailyList: MutableList<Daily>? = mutableListOf()
+    private lateinit var prefs: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        simpleDate = SimpleDateFormat("EEEE dd")
+        simpleDate = SimpleDateFormat("EEEE , dd")
         simpleSunrise = SimpleDateFormat("hh:mm aa")
+        prefs = PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
         hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
         dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
         homeScreenViewModelFactory =
-            HomeScreenViewModelFactory(Repository.getInstance(APIClient.getInstance()))
+            HomeScreenViewModelFactory(
+                Repository.getInstance(APIClient.getInstance()),
+                prefs.currentLatitude?.toDouble(),
+                prefs.currentLongitude?.toDouble()
+            )
         homeScreenViewModel =
             ViewModelProvider(this, homeScreenViewModelFactory).get(HomeScreenViewModel::class.java)
 
@@ -73,11 +84,13 @@ class HomeScreen : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home_screen, container, false)
         initialUI(view)
-
         lifecycleScope.launch(Dispatchers.IO)
         {
             try {
-                homeScreenViewModel.getCurrentWeather()
+                homeScreenViewModel.getCurrentWeather(
+                    prefs.currentLatitude?.toDouble(),
+                    prefs.currentLongitude?.toDouble()
+                )
             } catch (e: IOException) {
                 Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
             }
@@ -117,10 +130,10 @@ class HomeScreen : Fragment() {
 
     fun updateUI(weather: Welcome) {
         countryName.text = weather.timezone
-        countryDegree.text = "${weather.current.temp}"
+        countryDegree.text = "${weather.current.temp} °"
         currentDay.text = simpleDate.format(weather.current.dt * 1000L)
         currentDescription.text = weather.current.weather.get(0).description
-        hourlyList = weather.hourly as MutableList<Current>
+        hourlyList = (weather.hourly).take(24) as MutableList<Current>
         dailyList = weather.daily as MutableList<Daily>
         currentPressure.text = "${weather.current.pressure} hpa"
         currentHumidity.text = "${weather.current.humidity} %"

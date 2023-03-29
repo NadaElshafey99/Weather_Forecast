@@ -22,5 +22,6 @@
     <string name="gps">GPS</string>
     <string name="map">Map</string>
     <string name="notification">Notifictaion</string>
+    <string name="pleaseTurnONYourLocation">Please turn on location</string>
     <string name="ok">OK</string>
 </resources>
