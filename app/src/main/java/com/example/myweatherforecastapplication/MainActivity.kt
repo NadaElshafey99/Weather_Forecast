@@ -22,7 +22,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        navController = findNavController(R.id.fragmentContainerView)
+
+        navController  = findNavController(R.id.fragmentContainerView)
         toolbar = findViewById(R.id.toolBar)
         setSupportActionBar(toolbar)
 
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         navigationView.setupWithNavController(navController)
         setupActionBarWithNavController(navController, appBarConfiguration)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+
 
     }
 

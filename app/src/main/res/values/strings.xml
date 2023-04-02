@@ -20,8 +20,12 @@
     <string name="degree">°</string>
     <string name="location">Location</string>
     <string name="gps">GPS</string>
-    <string name="map">Map</string>
+    <string name="map">MAP</string>
     <string name="notification">Notifictaion</string>
     <string name="pleaseTurnONYourLocation">Please turn on location</string>
     <string name="ok">OK</string>
+    <string name="title_activity_location_maps">LocationMaps</string>
+    <string name="googleApi">AIzaSyBCZl6hQ8yRjUQcWN_3Ek2INbBqdmXW2PI</string>
+    <string name="searchYourLocation">Search your location</string>
+    <string name="done">Done</string>
 </resources>
