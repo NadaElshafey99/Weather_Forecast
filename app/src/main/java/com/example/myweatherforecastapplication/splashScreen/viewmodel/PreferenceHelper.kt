@@ -10,9 +10,6 @@ object PreferenceHelper {
     val USER_NOTIFICATION = "NOTIFICATION"
     val USER_LONGITUDE = "LONGITUDE"
     val USER_LATITUDE = "LATITUDE"
-    fun defaultPreference(context: Context): SharedPreferences =
-        PreferenceManager.getDefaultSharedPreferences(context)
-
     fun customPreference(context: Context, name: String): SharedPreferences =
         context.getSharedPreferences(name, Context.MODE_PRIVATE)
 

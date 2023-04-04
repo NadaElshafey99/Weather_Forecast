@@ -1,7 +1,6 @@
 package com.example.myweatherforecastapplication.homeScreen.view
 
 import android.content.SharedPreferences
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.adapters.DailyAdapter.DailyWeatherAdapter
 import com.example.myweatherforecastapplication.adapters.HourlyAdapter.HourlyWeatherAdapter
+import com.example.myweatherforecastapplication.db.LocalSource
 import com.example.myweatherforecastapplication.homeScreen.viewmodel.HomeScreenViewModel
 import com.example.myweatherforecastapplication.homeScreen.viewmodel.HomeScreenViewModelFactory
 import com.example.myweatherforecastapplication.model.*
@@ -68,7 +68,10 @@ class HomeScreen : Fragment() {
         dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
         homeScreenViewModelFactory =
             HomeScreenViewModelFactory(
-                Repository.getInstance(APIClient.getInstance()),
+                Repository.getInstance(
+                    APIClient.getInstance(),
+                    LocalSource.getInstance(requireContext())
+                ),
                 prefs.currentLatitude?.toDouble(),
                 prefs.currentLongitude?.toDouble()
             )
@@ -84,7 +87,7 @@ class HomeScreen : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home_screen, container, false)
         initialUI(view)
-        lifecycleScope.launch(Dispatchers.IO)
+        /*lifecycleScope.launch(Dispatchers.IO)
         {
             try {
                 homeScreenViewModel.getCurrentWeather(
@@ -93,19 +96,19 @@ class HomeScreen : Fragment() {
                 )
             } catch (e: IOException) {
                 Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
-            }
-            withContext(Dispatchers.Main)
-            {
+            }*/
+        //   withContext(Dispatchers.Main)
+        // {
 
-                homeScreenViewModel.weather.observe(requireActivity()) { weather ->
-                    if (weather != null) {
-                        updateUI(weather)
-                    } else {
-                        Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
-                    }
-                }
+        homeScreenViewModel.weather.observe(requireActivity()) { weather ->
+            if (weather != null) {
+                updateUI(weather)
+            } else {
+                Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
             }
         }
+        // }
+        //  }
         return view
     }
 
@@ -128,7 +131,7 @@ class HomeScreen : Fragment() {
         currentFeelsLike = view.findViewById(R.id.current_feelsLike)
     }
 
-    fun updateUI(weather: Welcome) {
+    private fun updateUI(weather: Welcome) {
         countryName.text = weather.timezone
         countryDegree.text = "${weather.current.temp} °"
         currentDay.text = simpleDate.format(weather.current.dt * 1000L)

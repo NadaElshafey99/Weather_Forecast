@@ -1,5 +1,6 @@
 package com.example.myweatherforecastapplication.model
 
+
 data class Welcome (
     val lat: Double,
     val lon: Double,
