@@ -48,25 +48,22 @@ class DailyWeatherAdapter(var context: Context) :
     }
 
     override fun onBindViewHolder(holder: DailyViewHolder, position: Int) {
-//        repeat(7) {
-            val simpleDate = SimpleDateFormat("EE, dd")
-            val currentDailyWeather: Daily = getItem(position)
-            val currentDate = simpleDate.format(currentDailyWeather.dt * 1000L)
-            holder.weatherDay.text = currentDate
-            holder.weatherMaxDegree.text = "${currentDailyWeather.temp.max}°"
-            holder.weatherMinDegree.text = "${currentDailyWeather.temp.min}°"
-            holder.weatherDesc.text = currentDailyWeather.weather.get(0).description
-            val icon = currentDailyWeather.weather.get(0).icon.lowercase()
-            val imageResource: Int =
-                context.resources.getIdentifier(
-                    Icon.getIcon(icon),
-                    "drawable",
-                    context.packageName
-                )
-            holder.weatherIcon.setImageResource(imageResource)
 
-//        }
-
+        val simpleDate = SimpleDateFormat("EE, dd")
+        val currentDailyWeather: Daily = getItem(position)
+        val currentDate = simpleDate.format(currentDailyWeather.dt * 1000L)
+        holder.weatherDay.text = currentDate
+        holder.weatherMaxDegree.text = "${currentDailyWeather.temp.max}°"
+        holder.weatherMinDegree.text = "${currentDailyWeather.temp.min}°"
+        holder.weatherDesc.text = currentDailyWeather.weather.get(0).description
+        val icon = currentDailyWeather.weather.get(0).icon.lowercase()
+        val imageResource: Int =
+            context.resources.getIdentifier(
+                Icon.getIcon(icon),
+                "drawable",
+                context.packageName
+            )
+        holder.weatherIcon.setImageResource(imageResource)
 
     }
 

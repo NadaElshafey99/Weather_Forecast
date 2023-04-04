@@ -12,8 +12,8 @@
             android:id="@+id/navigateFromHomeScreenToSettingScreen"
             app:destination="@id/settingScreen" />
         <action
-            android:id="@+id/navigateFromHomeScreenToMap"
-            app:destination="@id/mapsLocation" />
+            android:id="@+id/navigateFromHomeScreenToFavorite"
+            app:destination="@id/favorite" />
     </fragment>
 
     <fragment
@@ -28,6 +28,30 @@
         android:id="@+id/mapsLocation"
         android:name="com.example.myweatherforecastapplication.location.locationmap.MapsLocation"
         android:label="maps_location"
-        tools:layout="@layout/maps_location" />
+        tools:layout="@layout/maps_location" >
+        <argument
+            android:name="fromDestination"
+            app:argType="string"
+            android:defaultValue="initial"
+            app:nullable="true"/>
+        <action
+            android:id="@+id/navigateFromMapsLocationToFavorite"
+            app:destination="@id/favorite" />
+    </fragment>
+    <fragment
+        android:id="@+id/favorite"
+        android:name="com.example.myweatherforecastapplication.favorite.view.Favorite"
+        android:label="fragment_favorite"
+        tools:layout="@layout/fragment_favorite" >
+        <action
+            android:id="@+id/navigateFromFavoriteToMaps"
+            app:destination="@id/mapsLocation" />
+        <argument
+            android:name="latitude"
+            app:argType="float" />
+        <argument
+            android:name="longitude"
+            app:argType="float" />
+    </fragment>
 
 </navigation>

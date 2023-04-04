@@ -10,6 +10,7 @@ import android.location.Location
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,8 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import com.example.myweatherforecastapplication.MainActivity
 import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.databinding.MapsLocationBinding
@@ -57,6 +60,8 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
     private lateinit var markerOptions: MarkerOptions
     private var longitude = 0.0
     private var latitude = 0.0
+    private val args: MapsLocationArgs by navArgs()
+    private lateinit var destination: String
 
 
     override fun onCreateView(
@@ -69,13 +74,31 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
         mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         mapInitialize()
+        try {
+            destination = args.fromDestination ?: "initial"
+
+        } catch (e: IllegalStateException) {
+            destination = "initial"
+            Log.e("TAG", "onCreateView: ${e.printStackTrace()}")
+        }
+
         selectedLocation.setOnClickListener {
-            val prefs = PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
-            prefs.currentLatitude = latitude.toString()
-            prefs.currentLongitude = longitude.toString()
-            val intent = Intent(context, MainActivity::class.java)
-            context?.startActivity(intent)
-            activity?.finish()
+
+            when (destination.equals("fav")) {
+                true -> Navigation.findNavController(it)
+                    .navigate(R.id.navigateFromMapsLocationToFavorite)
+                false -> {
+                    val prefs =
+                        PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
+                    prefs.currentLatitude = latitude.toString()
+                    prefs.currentLongitude = longitude.toString()
+                    val intent = Intent(context, MainActivity::class.java)
+                    context?.startActivity(intent)
+                    activity?.finish()
+                }
+            }
+
+
         }
         return binding.root
 
@@ -138,8 +161,8 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
     private fun gotoLatLng(latitude: Double, longitude: Double, zoom: Float) {
         val latLng = LatLng(latitude, longitude)
         val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom)
-        this.latitude=latitude
-        this.longitude=longitude
+        this.latitude = latitude
+        this.longitude = longitude
         googleMap?.moveCamera(CameraUpdateFactory.newLatLng(latLng))
         googleMap?.animateCamera(cameraUpdate)
 
@@ -177,11 +200,11 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
                             latitude = location.latitude
                         };
                     }
-                        fusedLocationProviderClient.lastLocation.addOnFailureListener {
-                            Toast.makeText(context, "error ${it.message}", Toast.LENGTH_LONG).show()
-                        }.addOnSuccessListener {
-                            val latLng = LatLng(it.latitude, it.longitude)
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17F))
+                    fusedLocationProviderClient.lastLocation.addOnFailureListener {
+                        Toast.makeText(context, "error ${it.message}", Toast.LENGTH_LONG).show()
+                    }.addOnSuccessListener {
+                        val latLng = LatLng(it.latitude, it.longitude)
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17F))
                     }
 
                 }

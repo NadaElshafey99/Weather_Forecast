@@ -13,4 +13,5 @@
     <color name="secondGradientColor">#CB2C74B3</color>
     <color name="forBackground">#332B3467</color>
     <color name="transparent">@android:color/transparent</color>
+    <color name="transparentWithOpacity">#992B3467</color>
 </resources>

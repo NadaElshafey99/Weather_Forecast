@@ -28,4 +28,7 @@
     <string name="googleApi">AIzaSyBCZl6hQ8yRjUQcWN_3Ek2INbBqdmXW2PI</string>
     <string name="searchYourLocation">Search your location</string>
     <string name="done">Done</string>
+    <string name="favorite">Favorite</string>
+    <string name="fav">Favorite</string>
+    <string name="add">Add</string>
 </resources>
