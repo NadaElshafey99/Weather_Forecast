@@ -132,7 +132,8 @@ class HomeScreen : Fragment() {
     }
 
     private fun updateUI(weather: Welcome) {
-        countryName.text = weather.timezone
+        val split = weather.timezone.split("/").toTypedArray()
+        countryName.text = split[1]
         countryDegree.text = "${weather.current.temp} °"
         currentDay.text = simpleDate.format(weather.current.dt * 1000L)
         currentDescription.text = weather.current.weather.get(0).description

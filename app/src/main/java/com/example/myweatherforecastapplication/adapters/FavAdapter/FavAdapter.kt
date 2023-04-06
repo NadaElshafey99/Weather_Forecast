@@ -49,7 +49,7 @@ class FavAdapter(var context: Context, var onClickListener: OnClickListener) :
     override fun onBindViewHolder(holder: FavViewHolder, position: Int) {
         val currentFavItem: Favorite = getItem(position)
         holder.weatherDegree.text = "${currentFavItem.temp}"
-        holder.countryName.text = "${currentFavItem.temp}"
+        holder.countryName.text = "${currentFavItem.timeZone}"
         val icon = currentFavItem.icon?.lowercase()
         val imageResource: Int =
             context.resources.getIdentifier(

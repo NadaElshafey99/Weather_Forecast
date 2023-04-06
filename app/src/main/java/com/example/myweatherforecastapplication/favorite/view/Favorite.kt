@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myweatherforecastapplication.R
@@ -22,8 +24,7 @@ import com.example.myweatherforecastapplication.model.Welcome
 import com.example.myweatherforecastapplication.network.APIClient
 import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLatitude
 import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLongitude
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 
 class Favorite : Fragment(), OnClickListener {
@@ -34,6 +35,8 @@ class Favorite : Fragment(), OnClickListener {
     private lateinit var favoriteViewModel: FavoriteViewModel
     private lateinit var favoriteViewModelFactory: FavoriteViewModelFactory
     private lateinit var addButton: Button
+    private lateinit var weatherOfFav: Welcome
+    private val favoriteArgs: FavoriteArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,20 +62,19 @@ class Favorite : Fragment(), OnClickListener {
         favRecyclerView = view.findViewById(R.id.favRecyclerView)
         addButton = view.findViewById(R.id.add_button)
         addButton.setOnClickListener {
-            val action=FavoriteDirections.navigateFromFavoriteToMaps("fav")
-            Navigation.findNavController(view).navigate(action)
+            Navigation.findNavController(view).navigate(R.id.navigateFromFavoriteToMaps)
+        }
+        if (favoriteArgs.latitude.isNotEmpty()) {
+            getWeatherOfFav(favoriteArgs.latitude.toDouble(),
+                favoriteArgs.longitude.toDouble())
         }
         return view
     }
 
     override fun onResume() {
         super.onResume()
-//        addButton.setOnClickListener {
-//            val fav=Favorite(33.44, -94.04, 294.13, "10d")
-//            addFavToDB(fav)
-//        }
         favoriteViewModel.favorites.observe(this, Observer {
-            favList=it as MutableList<Favorite>
+            favList = it as MutableList<Favorite>
             favAdapter.submitList(favList)
             favRecyclerView.apply {
                 layoutManager = LinearLayoutManager(context).apply {
@@ -82,6 +84,22 @@ class Favorite : Fragment(), OnClickListener {
             }
         })
 
+    }
+
+    private fun getWeatherOfFav(latitude: Double, longitude: Double) {
+
+        favoriteViewModel.getWeatherOfSelectedFav(latitude,longitude)
+        favoriteViewModel.weatherOfSelectedCountry.observe(viewLifecycleOwner, Observer {
+
+            val add = Favorite(
+                favoriteArgs.latitude.toDouble(),
+                favoriteArgs.longitude.toDouble(),
+                it.timezone,
+                it.current.temp,
+                it.current.weather.get(0).icon
+            )
+            addFavToDB(add)
+        })
     }
 
     override fun favDetails(favorite: Favorite) {

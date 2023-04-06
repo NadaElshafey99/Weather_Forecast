@@ -29,11 +29,6 @@
         android:name="com.example.myweatherforecastapplication.location.locationmap.MapsLocation"
         android:label="maps_location"
         tools:layout="@layout/maps_location" >
-        <argument
-            android:name="fromDestination"
-            app:argType="string"
-            android:defaultValue="initial"
-            app:nullable="true"/>
         <action
             android:id="@+id/navigateFromMapsLocationToFavorite"
             app:destination="@id/favorite" />
@@ -48,10 +43,12 @@
             app:destination="@id/mapsLocation" />
         <argument
             android:name="latitude"
-            app:argType="float" />
+            app:argType="string"
+            android:defaultValue=""/>
         <argument
             android:name="longitude"
-            app:argType="float" />
+            app:argType="string"
+            android:defaultValue=""/>
     </fragment>
 
 </navigation>

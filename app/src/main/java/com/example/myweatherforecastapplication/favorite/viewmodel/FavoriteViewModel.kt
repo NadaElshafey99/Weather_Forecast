@@ -8,6 +8,8 @@ import com.example.myweatherforecastapplication.model.Favorite
 import com.example.myweatherforecastapplication.model.RepositoryInterface
 import com.example.myweatherforecastapplication.model.Welcome
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class FavoriteViewModel(
@@ -22,13 +24,18 @@ class FavoriteViewModel(
         getFavorites()
     }
 
-    private fun getWeatherOfSelectedFav(lat: Double?, lon: Double?) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getWeatherOfSelectedFav(lat: Double?, lon: Double?){
 
-        viewModelScope.launch(Dispatchers.IO)
-        {
-            weatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0))
-
+        viewModelScope.launch {
+            viewModelScope.async(Dispatchers.IO)
+            {
+                val result=repository.getWeather(lat?:0.0, lon?:0.0)
+                weatherLiveData.postValue(result)
+                result
+            }.await()
         }
+
     }
 
     private fun getFavorites() {

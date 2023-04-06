@@ -60,8 +60,7 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
     private lateinit var markerOptions: MarkerOptions
     private var longitude = 0.0
     private var latitude = 0.0
-    private val args: MapsLocationArgs by navArgs()
-    private lateinit var destination: String
+    private var destination: String? = "fav"
 
 
     override fun onCreateView(
@@ -73,21 +72,14 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
         selectedLocation = binding.doneButton
         mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        destination = arguments?.getString("previousDestination")
+        Log.i("TAG", "onCreateView: $destination")
         mapInitialize()
-        try {
-            destination = args.fromDestination ?: "initial"
-
-        } catch (e: IllegalStateException) {
-            destination = "initial"
-            Log.e("TAG", "onCreateView: ${e.printStackTrace()}")
-        }
-
         selectedLocation.setOnClickListener {
-
-            when (destination.equals("fav")) {
-                true -> Navigation.findNavController(it)
-                    .navigate(R.id.navigateFromMapsLocationToFavorite)
-                false -> {
+            when (destination=="initial" || destination==null) {
+                true -> {
+                    destination = "fav"
                     val prefs =
                         PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
                     prefs.currentLatitude = latitude.toString()
@@ -95,6 +87,14 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
                     val intent = Intent(context, MainActivity::class.java)
                     context?.startActivity(intent)
                     activity?.finish()
+
+                }
+                false -> {
+                    val action = MapsLocationDirections.navigateFromMapsLocationToFavorite(
+                        "$latitude",
+                        "$longitude"
+                    )
+                    Navigation.findNavController(it).navigate(action)
                 }
             }
 
