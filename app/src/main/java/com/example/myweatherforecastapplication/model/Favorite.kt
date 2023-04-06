@@ -8,6 +8,7 @@ data class Favorite(
     @PrimaryKey
     val lat: Double,
     val lon: Double,
+    val timeZone:String?,
     val temp: Double?,
     val icon: String?
 )

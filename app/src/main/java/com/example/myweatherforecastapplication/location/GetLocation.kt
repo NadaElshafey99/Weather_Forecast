@@ -11,7 +11,7 @@ import com.example.myweatherforecastapplication.splashScreen.view.PERMISSION_LOC
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
-class Location {
+class GetLocation {
     private lateinit var myFusedLocationClient: FusedLocationProviderClient
 
     @SuppressLint("MissingPermission")

@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.myweatherforecastapplication.model.Favorite
 
-@Database(entities = [Favorite::class], version = 1)
+@Database(entities = [Favorite::class], version = 2)
 abstract class AppDataBase : RoomDatabase() {
     abstract fun favoriteDAO(): FavoriteDAO
 

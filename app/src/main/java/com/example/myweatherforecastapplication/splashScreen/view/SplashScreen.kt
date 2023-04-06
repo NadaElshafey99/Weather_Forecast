@@ -12,18 +12,19 @@ import android.graphics.drawable.ColorDrawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import android.location.Location
+import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieAnimationView
 import com.example.myweatherforecastapplication.MainActivity
 import com.example.myweatherforecastapplication.R
-import com.example.myweatherforecastapplication.location.Location
 import com.example.myweatherforecastapplication.location.locationmap.MapsLocation
 import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.USER_LOCATION
 import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.USER_LONGITUDE
@@ -34,6 +35,10 @@ import com.example.myweatherforecastapplication.splashScreen.viewmodel.Preferenc
 import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.userLocation
 import com.example.myweatherforecastapplication.splashScreen.viewmodel.SplashScreenViewModel
 import com.google.android.gms.location.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 const val PERMISSION_LOCATION_ID = 44
@@ -60,9 +65,11 @@ class SplashScreen : AppCompatActivity() {
     lateinit var myFusedLocationClient: FusedLocationProviderClient
     private lateinit var notification: String
     private lateinit var location: String
+    private var latitude: String? = "0"
+    private var longitude: String? = "0"
     private lateinit var prefs: SharedPreferences
     private lateinit var mapContainer: FragmentContainerView
-    private val locationObject = Location()
+//    private val locationObject = Location()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +89,6 @@ class SplashScreen : AppCompatActivity() {
         sunImage.animate().translationY(-2000F).setDuration(1000).startDelay = 4000
         stormImage.animate().translationY(-2000F).setDuration(1000).startDelay = 4000
         prefs = customPreference(this, CUSTOM_PREF_NAME)
-
 
         Handler().postDelayed({
             showDialog()
@@ -126,10 +132,10 @@ class SplashScreen : AppCompatActivity() {
                 Toast.makeText(this@SplashScreen, notification, Toast.LENGTH_SHORT).show()
             }
             okButton.setOnClickListener {
-                requestNewLocationDate()
                 prefs.userLocation = location
                 prefs.notification = notification
                 navigateToHomeScreen()
+
 
             }
         } else {
@@ -143,69 +149,122 @@ class SplashScreen : AppCompatActivity() {
         when (location) {
             "GPS" -> {
                 getLastLocation()
-                val intent = Intent(this@SplashScreen, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                lifecycleScope.launch {
+                    if (prefs.contains(USER_LONGITUDE))
+                        launchHome()
+                    else {
+                        delay(1000)
+                        launchHome()
+                    }
+                }
             }
             "MAP" -> openMap()
         }
     }
 
+    private fun launchHome() {
+        val intent = Intent(this@SplashScreen, MainActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
     @SuppressLint("MissingPermission")
     private fun getLastLocation() {
-        val locationManager: LocationManager =
-            getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        when (locationObject.getLastLocation(this, locationManager)) {
-            "true" -> requestNewLocationDate()
-            "false" -> {
-                Toast.makeText(this, R.string.pleaseTurnONYourLocation, Toast.LENGTH_LONG).show()
+        myFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                myFusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
+                    val location: Location? = task.result
+                    if (location != null) {
+                        prefs.currentLongitude = location.longitude.toString()
+                        prefs.currentLatitude = location.latitude.toString()
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Please turn on location", Toast.LENGTH_LONG).show()
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 startActivity(intent)
+            }
+        } else {
+            requestPermissions()
+        }
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_LOCATION_ID) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation()
             }
         }
     }
 
-    private fun requestNewLocationDate() {
-        locationViewModel = ViewModelProviders.of(this).get(SplashScreenViewModel::class.java)
-        locationViewModel.getLocationLiveData()
-            .observe(this, Observer {
-                prefs.currentLatitude = it.latitude
-                prefs.currentLongitude = it.longitude
-            })
-    }
+    /*private val myLocationCallback: LocationCallback = object : LocationCallback() {
+        override fun onLocationResult(p0: LocationResult) {
+            super.onLocationResult(p0)
+            val myLastLocation: Location? = p0.lastLocation
+            latitude = myLastLocation?.latitude.toString()
+            longitude = myLastLocation?.longitude.toString()
+            Log.i("TAG", "onLocationResult: $latitude")
+            Log.i("TAG", "onLocationResult: $longitude")
+        }
+    }*/
 
     private fun checkPermissions(): Boolean {
-        return locationObject.checkPermissions(this)
+        return ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
 
     }
 
     private fun requestPermissions() {
-        locationObject.requestPermissions(this)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            PERMISSION_LOCATION_ID
+        )
     }
 
     private fun isLocationEnabled(): Boolean {
         val locationManager: LocationManager =
             getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationObject.isLocationEnabled(locationManager)
+        val result =
+            locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+                LocationManager.NETWORK_PROVIDER
+            )
+        return result
     }
 
     private fun openMap() {
-        /*val intent = Intent(this@SplashScreen, LocationMaps::class.java)
-        startActivity(intent)*/
         dialog.dismiss()
-      if(!prefs.contains(USER_LONGITUDE)) {
-          mapContainer.visibility = View.VISIBLE
-          val fragmentManager = supportFragmentManager
-          val fragmentTransaction = fragmentManager.beginTransaction()
-          fragmentTransaction.replace(R.id.mapContainer, MapsLocation())
-          fragmentTransaction.commit()
-      }
-        else
-      {
-          val intent = Intent(this@SplashScreen, MainActivity::class.java)
-          startActivity(intent)
-          finish()
-      }
+        if (!prefs.contains(USER_LONGITUDE)) {
+            mapContainer.visibility = View.VISIBLE
+            val bundle = Bundle()
+            bundle.putString("previousDestination", "initial")
+            val mapsLocation = MapsLocation()
+            mapsLocation.arguments = bundle
+            val fragmentManager = supportFragmentManager
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.mapContainer, MapsLocation())
+            fragmentTransaction.commit()
+        } else {
+            val intent = Intent(this@SplashScreen, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 
 
