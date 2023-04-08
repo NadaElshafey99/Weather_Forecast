@@ -120,7 +120,7 @@ class SplashScreen : AppCompatActivity() {
                 Toast.makeText(this@SplashScreen, location, Toast.LENGTH_SHORT).show()
             }
             notificationON.setOnCheckedChangeListener { _, isChecked ->
-                notification = if (isChecked) "ON" else "OFF"
+                notification = if (isChecked) "Enable" else "Disable"
                 Toast.makeText(this@SplashScreen, notification, Toast.LENGTH_SHORT).show()
             }
             okButton.setOnClickListener {

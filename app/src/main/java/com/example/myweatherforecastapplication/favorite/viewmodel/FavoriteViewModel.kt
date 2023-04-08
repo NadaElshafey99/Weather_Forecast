@@ -1,5 +1,6 @@
 package com.example.myweatherforecastapplication.favorite.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,7 +14,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class FavoriteViewModel(
-    private val repository: RepositoryInterface
+    private val repository: RepositoryInterface,
 ) : ViewModel() {
     private var _favorites: MutableLiveData<List<Favorite>> = MutableLiveData()
     val favorites: LiveData<List<Favorite>> = _favorites
@@ -24,12 +25,12 @@ class FavoriteViewModel(
         getFavorites()
     }
 
-    fun getWeatherOfSelectedFav(lat: Double?, lon: Double?){
+    fun getWeatherOfSelectedFav(lat: Double?, lon: Double?,context: Context){
 
         viewModelScope.launch {
             viewModelScope.launch(Dispatchers.IO)
             {
-                weatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0))
+                weatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0,context))
 
             }
         }

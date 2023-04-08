@@ -29,6 +29,8 @@ import com.example.myweatherforecastapplication.network.APIClient
 import com.example.myweatherforecastapplication.PreferenceHelper
 import com.example.myweatherforecastapplication.PreferenceHelper.currentLatitude
 import com.example.myweatherforecastapplication.PreferenceHelper.currentLongitude
+import com.example.myweatherforecastapplication.PreferenceHelper.language
+import com.example.myweatherforecastapplication.PreferenceHelper.windSpeedUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -71,9 +73,9 @@ class HomeScreen : Fragment() {
     private var fromDestination: String = "fav"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        simpleDate = SimpleDateFormat("EEEE , dd")
-        simpleSunrise = SimpleDateFormat("hh:mm aa")
         prefs = PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
+        simpleDate = SimpleDateFormat("EEEE , dd", Locale(prefs.language ?: "en"))
+        simpleSunrise = SimpleDateFormat("hh:mm aa", Locale(prefs.language ?: "en"))
         hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
         dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
 //        prefs.itemDisplay="current"
@@ -89,11 +91,6 @@ class HomeScreen : Fragment() {
         try {
             latitude = homeArgs.lat?.toDouble()
             longitude = homeArgs.lon?.toDouble()
-//            if (prefs.itemDisplay=="current") {
-//                latitude = prefs.currentLatitude?.toDouble()
-//                longitude = prefs.currentLongitude?.toDouble()
-//                fromDestination=homeArgs.fromDestination.toString()
-//            }
 
         } catch (ex: Exception) {
             latitude = prefs.currentLatitude?.toDouble()
@@ -107,14 +104,14 @@ class HomeScreen : Fragment() {
                     LocalSource.getInstance(requireContext())
                 ),
                 latitude,
-                longitude
+                longitude, requireContext()
             )
         homeScreenViewModel =
             ViewModelProvider(this, homeScreenViewModelFactory).get(HomeScreenViewModel::class.java)
 
         homeScreenViewModel.weather.observe(requireActivity()) { weather ->
             if (weather != null) {
-                lifecycleScope.launch(Dispatchers.Main){
+                lifecycleScope.launch(Dispatchers.Main) {
                     updateUI(weather)
                 }
 
@@ -145,9 +142,7 @@ class HomeScreen : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         Log.i("TAG", "onDestroyView: ")
-//        prefs.itemDisplay="current"
-//        findNavController().popBackStack()
-
+//        fragmentManager?.beginTransaction()?.detach(this)?.attach(this)?.commit()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -190,7 +185,7 @@ class HomeScreen : Fragment() {
         dailyList = weather.daily as MutableList<Daily>
         currentPressure.text = "${weather.current.pressure} hpa"
         currentHumidity.text = "${weather.current.humidity} %"
-        currentWind.text = "${weather.current.wind_speed} m/s"
+        currentWind.text = "${weather.current.wind_speed} ${prefs.windSpeedUnit}"
         currentCloud.text = "${weather.current.clouds} %"
         currentVisibility.text = "${weather.current.visibility} m"
         currentUV.text = "${weather.current.uvi}"
@@ -223,4 +218,6 @@ class HomeScreen : Fragment() {
             )
         iconDescribeWeather.setImageResource(imageResource)
     }
+
+
 }

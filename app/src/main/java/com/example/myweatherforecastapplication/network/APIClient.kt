@@ -1,6 +1,13 @@
 package com.example.myweatherforecastapplication.network
 
+import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
+import com.example.myweatherforecastapplication.PreferenceHelper
+import com.example.myweatherforecastapplication.PreferenceHelper.language
+import com.example.myweatherforecastapplication.PreferenceHelper.temperatureUnit
+import com.example.myweatherforecastapplication.PreferenceHelper.unit
+import com.example.myweatherforecastapplication.homeScreen.view.CUSTOM_PREF_NAME
 import com.example.myweatherforecastapplication.model.Welcome
 
 class APIClient private constructor() : RemoteSourceInterface {
@@ -8,11 +15,13 @@ class APIClient private constructor() : RemoteSourceInterface {
         RetrofitHelper.getInstance().create(APIService::class.java)
     }
 
-    override suspend fun getCurrentWeather(lat: Double, lon: Double): Welcome {
+    override suspend fun getCurrentWeather(lat: Double, lon: Double, context: Context): Welcome {
+        val prefs = PreferenceHelper.customPreference(context, CUSTOM_PREF_NAME)
         return apiService.getCurrentWeather(
             lat,
             lon,
-            "metric",
+            prefs.unit?:"standard",
+            prefs.language?:"en",
             "ca201421061f034c889bb5b55aec30f8"
         )
     }

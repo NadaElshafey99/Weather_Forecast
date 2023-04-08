@@ -16,19 +16,19 @@
             app:destination="@id/favorite" />
         <argument
             android:name="lat"
+            android:defaultValue=""
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue=""/>
+            app:nullable="true" />
         <argument
             android:name="lon"
+            android:defaultValue=""
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue=""/>
+            app:nullable="true" />
         <argument
             android:name="fromDestination"
+            android:defaultValue=""
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue="" />
+            app:nullable="true" />
     </fragment>
 
     <fragment
@@ -38,32 +38,42 @@
         <action
             android:id="@+id/navigateFromSettingScreenToHomeScreen"
             app:destination="@id/homeScreen" />
+        <action
+            android:id="@+id/navigateFromSettingScreenToMapsLocation"
+            app:destination="@id/mapsLocation" />
     </fragment>
     <fragment
         android:id="@+id/mapsLocation"
         android:name="com.example.myweatherforecastapplication.location.locationmap.MapsLocation"
         android:label="maps_location"
-        tools:layout="@layout/maps_location" >
+        tools:layout="@layout/maps_location">
         <action
             android:id="@+id/navigateFromMapsLocationToFavorite"
             app:destination="@id/favorite" />
+        <argument
+            android:name="fromDestination"
+            android:defaultValue=""
+            app:argType="string" />
+        <action
+            android:id="@+id/navigateFromMapsLocationToHomeScreen"
+            app:destination="@id/homeScreen" />
     </fragment>
     <fragment
         android:id="@+id/favorite"
         android:name="com.example.myweatherforecastapplication.favorite.view.Favorite"
         android:label="fragment_favorite"
-        tools:layout="@layout/fragment_favorite" >
+        tools:layout="@layout/fragment_favorite">
         <action
             android:id="@+id/navigateFromFavoriteToMaps"
             app:destination="@id/mapsLocation" />
         <argument
             android:name="latitude"
-            app:argType="string"
-            android:defaultValue=""/>
+            android:defaultValue=""
+            app:argType="string" />
         <argument
             android:name="longitude"
-            app:argType="string"
-            android:defaultValue=""/>
+            android:defaultValue=""
+            app:argType="string" />
         <action
             android:id="@+id/navigateFromFavoriteToHomeScreen"
             app:destination="@id/homeScreen" />

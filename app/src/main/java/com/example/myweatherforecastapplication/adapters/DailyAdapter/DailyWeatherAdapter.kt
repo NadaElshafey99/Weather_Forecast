@@ -1,18 +1,23 @@
 package com.example.myweatherforecastapplication.adapters.DailyAdapter
 
 import android.content.Context
-import android.content.res.Resources
+import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myweatherforecastapplication.PreferenceHelper
+import com.example.myweatherforecastapplication.PreferenceHelper.language
 import com.example.myweatherforecastapplication.R
+import com.example.myweatherforecastapplication.homeScreen.view.CUSTOM_PREF_NAME
 import com.example.myweatherforecastapplication.model.Daily
 import com.example.myweatherforecastapplication.model.Icon
 import java.text.SimpleDateFormat
+import java.util.*
 
 class DailyWeatherAdapter(var context: Context) :
     ListAdapter<Daily, DailyWeatherAdapter.DailyViewHolder>(
@@ -32,9 +37,6 @@ class DailyWeatherAdapter(var context: Context) :
         val weatherMaxDegree: TextView
             get() = itemView.findViewById(R.id.max_degree_of_one_item)
 
-        val weatherDesc: TextView
-            get() = itemView.findViewById(R.id.description_of_one_item)
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DailyViewHolder {
@@ -48,14 +50,13 @@ class DailyWeatherAdapter(var context: Context) :
     }
 
     override fun onBindViewHolder(holder: DailyViewHolder, position: Int) {
-
-        val simpleDate = SimpleDateFormat("EE, dd")
+        val prefs = PreferenceHelper.customPreference(context, CUSTOM_PREF_NAME)
+        val simpleDate = SimpleDateFormat("EE, dd", Locale(prefs.language ?: "en"))
         val currentDailyWeather: Daily = getItem(position)
         val currentDate = simpleDate.format(currentDailyWeather.dt * 1000L)
         holder.weatherDay.text = currentDate
         holder.weatherMaxDegree.text = "${currentDailyWeather.temp.max}°"
         holder.weatherMinDegree.text = "${currentDailyWeather.temp.min}°"
-        holder.weatherDesc.text = currentDailyWeather.weather.get(0).description
         val icon = currentDailyWeather.weather.get(0).icon.lowercase()
         val imageResource: Int =
             context.resources.getIdentifier(

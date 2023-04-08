@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
-    tools:context=".favorite.view.Favorite">
+    tools:context=".settingScreen.view.SettingScreen">
 
     <Button
         android:id="@+id/save_button"
