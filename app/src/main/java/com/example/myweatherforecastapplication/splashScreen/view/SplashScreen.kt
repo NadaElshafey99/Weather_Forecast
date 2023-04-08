@@ -12,7 +12,6 @@ import android.graphics.drawable.ColorDrawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.widget.*
@@ -26,19 +25,16 @@ import com.airbnb.lottie.LottieAnimationView
 import com.example.myweatherforecastapplication.MainActivity
 import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.location.locationmap.MapsLocation
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.USER_LOCATION
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.USER_LONGITUDE
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLatitude
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLongitude
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.customPreference
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.notification
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.userLocation
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.SplashScreenViewModel
+import com.example.myweatherforecastapplication.PreferenceHelper.USER_LOCATION
+import com.example.myweatherforecastapplication.PreferenceHelper.USER_LONGITUDE
+import com.example.myweatherforecastapplication.PreferenceHelper.currentLatitude
+import com.example.myweatherforecastapplication.PreferenceHelper.currentLongitude
+import com.example.myweatherforecastapplication.PreferenceHelper.customPreference
+import com.example.myweatherforecastapplication.PreferenceHelper.notification
+import com.example.myweatherforecastapplication.PreferenceHelper.userLocation
 import com.google.android.gms.location.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.*
 
 const val PERMISSION_LOCATION_ID = 44
@@ -46,7 +42,6 @@ const val PERMISSION_LOCATION_ID = 44
 class SplashScreen : AppCompatActivity() {
     val CUSTOM_PREF_NAME = "settings"
     private lateinit var lottieAnimationView: LottieAnimationView
-    private lateinit var locationViewModel: SplashScreenViewModel
     private lateinit var topTitle: TextView
     private lateinit var morocco: TextView
     private lateinit var largeDegree: TextView
@@ -65,11 +60,8 @@ class SplashScreen : AppCompatActivity() {
     lateinit var myFusedLocationClient: FusedLocationProviderClient
     private lateinit var notification: String
     private lateinit var location: String
-    private var latitude: String? = "0"
-    private var longitude: String? = "0"
     private lateinit var prefs: SharedPreferences
     private lateinit var mapContainer: FragmentContainerView
-//    private val locationObject = Location()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -190,7 +182,6 @@ class SplashScreen : AppCompatActivity() {
         }
     }
 
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -204,16 +195,6 @@ class SplashScreen : AppCompatActivity() {
         }
     }
 
-    /*private val myLocationCallback: LocationCallback = object : LocationCallback() {
-        override fun onLocationResult(p0: LocationResult) {
-            super.onLocationResult(p0)
-            val myLastLocation: Location? = p0.lastLocation
-            latitude = myLastLocation?.latitude.toString()
-            longitude = myLastLocation?.longitude.toString()
-            Log.i("TAG", "onLocationResult: $latitude")
-            Log.i("TAG", "onLocationResult: $longitude")
-        }
-    }*/
 
     private fun checkPermissions(): Boolean {
         return ActivityCompat.checkSelfPermission(
@@ -252,13 +233,15 @@ class SplashScreen : AppCompatActivity() {
         dialog.dismiss()
         if (!prefs.contains(USER_LONGITUDE)) {
             mapContainer.visibility = View.VISIBLE
-            val bundle = Bundle()
-            bundle.putString("previousDestination", "initial")
+
             val mapsLocation = MapsLocation()
-            mapsLocation.arguments = bundle
             val fragmentManager = supportFragmentManager
             val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.mapContainer, MapsLocation())
+            val bundle = Bundle()
+            bundle.putString("previousDestination", "initial")
+            Log.i("TAG", "openMap: ${bundle.getString("previousDestination")}")
+            mapsLocation.arguments = bundle
+            fragmentTransaction.replace(R.id.mapContainer, mapsLocation)
             fragmentTransaction.commit()
         } else {
             val intent = Intent(this@SplashScreen, MainActivity::class.java)

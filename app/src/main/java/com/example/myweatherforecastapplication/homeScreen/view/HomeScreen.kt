@@ -1,7 +1,10 @@
 package com.example.myweatherforecastapplication.homeScreen.view
 
 import android.content.SharedPreferences
+import android.location.Address
+import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +14,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myweatherforecastapplication.R
@@ -21,14 +26,13 @@ import com.example.myweatherforecastapplication.homeScreen.viewmodel.HomeScreenV
 import com.example.myweatherforecastapplication.homeScreen.viewmodel.HomeScreenViewModelFactory
 import com.example.myweatherforecastapplication.model.*
 import com.example.myweatherforecastapplication.network.APIClient
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLatitude
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLongitude
+import com.example.myweatherforecastapplication.PreferenceHelper
+import com.example.myweatherforecastapplication.PreferenceHelper.currentLatitude
+import com.example.myweatherforecastapplication.PreferenceHelper.currentLongitude
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.*
 
 val CUSTOM_PREF_NAME = "settings"
 
@@ -58,7 +62,13 @@ class HomeScreen : Fragment() {
     private lateinit var homeScreenViewModelFactory: HomeScreenViewModelFactory
     private var hourlyList: MutableList<Current>? = mutableListOf()
     private var dailyList: MutableList<Daily>? = mutableListOf()
+    private lateinit var geocoder: Geocoder
+    private lateinit var addresses: List<Address>
     private lateinit var prefs: SharedPreferences
+    private var latitude: Double? = null
+    private var longitude: Double? = null
+    private val homeArgs: HomeScreenArgs by navArgs()
+    private var fromDestination: String = "fav"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         simpleDate = SimpleDateFormat("EEEE , dd")
@@ -66,18 +76,7 @@ class HomeScreen : Fragment() {
         prefs = PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
         hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
         dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
-        homeScreenViewModelFactory =
-            HomeScreenViewModelFactory(
-                Repository.getInstance(
-                    APIClient.getInstance(),
-                    LocalSource.getInstance(requireContext())
-                ),
-                prefs.currentLatitude?.toDouble(),
-                prefs.currentLongitude?.toDouble()
-            )
-        homeScreenViewModel =
-            ViewModelProvider(this, homeScreenViewModelFactory).get(HomeScreenViewModel::class.java)
-
+//        prefs.itemDisplay="current"
     }
 
     override fun onCreateView(
@@ -87,29 +86,74 @@ class HomeScreen : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home_screen, container, false)
         initialUI(view)
-        /*lifecycleScope.launch(Dispatchers.IO)
-        {
-            try {
-                homeScreenViewModel.getCurrentWeather(
-                    prefs.currentLatitude?.toDouble(),
-                    prefs.currentLongitude?.toDouble()
-                )
-            } catch (e: IOException) {
-                Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
-            }*/
-        //   withContext(Dispatchers.Main)
-        // {
+        try {
+            latitude = homeArgs.lat?.toDouble()
+            longitude = homeArgs.lon?.toDouble()
+//            if (prefs.itemDisplay=="current") {
+//                latitude = prefs.currentLatitude?.toDouble()
+//                longitude = prefs.currentLongitude?.toDouble()
+//                fromDestination=homeArgs.fromDestination.toString()
+//            }
+
+        } catch (ex: Exception) {
+            latitude = prefs.currentLatitude?.toDouble()
+            longitude = prefs.currentLongitude?.toDouble()
+            print(ex.printStackTrace())
+        }
+        homeScreenViewModelFactory =
+            HomeScreenViewModelFactory(
+                Repository.getInstance(
+                    APIClient.getInstance(),
+                    LocalSource.getInstance(requireContext())
+                ),
+                latitude,
+                longitude
+            )
+        homeScreenViewModel =
+            ViewModelProvider(this, homeScreenViewModelFactory).get(HomeScreenViewModel::class.java)
 
         homeScreenViewModel.weather.observe(requireActivity()) { weather ->
             if (weather != null) {
-                updateUI(weather)
+                lifecycleScope.launch(Dispatchers.Main){
+                    updateUI(weather)
+                }
+
+                Log.i("TAG", "Latitude: ${weather.lat}")
+                Log.i("TAG", "Longitude: ${weather.lon}")
             } else {
                 Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
             }
         }
-        // }
-        //  }
+
         return view
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.i("TAG", "onPause: ")
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i("TAG", "onStop: ")
+        homeArgs.toBundle().clear()
+//        findNavController().popBackStack()
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.i("TAG", "onDestroyView: ")
+//        prefs.itemDisplay="current"
+//        findNavController().popBackStack()
+
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.i("TAG", "onSaveInstanceState: ")
+        super.onSaveInstanceState(outState)
+        outState.putString("fromDestination", fromDestination);
     }
 
     private fun initialUI(view: View) {
@@ -132,8 +176,13 @@ class HomeScreen : Fragment() {
     }
 
     private fun updateUI(weather: Welcome) {
-        val split = weather.timezone.split("/").toTypedArray()
-        countryName.text = split[1]
+        geocoder = Geocoder(requireContext(), Locale.getDefault())
+        addresses = geocoder.getFromLocation(weather.lat, weather.lon, 1) as List<Address>
+        val state = addresses.get(0).getAdminArea()
+        val country = addresses.get(0).getCountryName()
+        val split = state.split(" ").toTypedArray()
+        val timeZone = "${split[0]} \n $country"
+        countryName.text = timeZone
         countryDegree.text = "${weather.current.temp} °"
         currentDay.text = simpleDate.format(weather.current.dt * 1000L)
         currentDescription.text = weather.current.weather.get(0).description

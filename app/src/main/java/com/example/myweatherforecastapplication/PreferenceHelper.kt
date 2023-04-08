@@ -1,8 +1,7 @@
-package com.example.myweatherforecastapplication.splashScreen.viewmodel
+package com.example.myweatherforecastapplication
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 
 object PreferenceHelper {
 
@@ -10,6 +9,10 @@ object PreferenceHelper {
     val USER_NOTIFICATION = "NOTIFICATION"
     val USER_LONGITUDE = "LONGITUDE"
     val USER_LATITUDE = "LATITUDE"
+    val TEMPERATURE_UNIT = "TEMPERATURE_UNIT"
+    val WIND_SPEED_UNIT = "WIND_SPEED_UNIT"
+    val LANGUAGE = "LANGUAGE"
+
     fun customPreference(context: Context, name: String): SharedPreferences =
         context.getSharedPreferences(name, Context.MODE_PRIVATE)
 
@@ -41,7 +44,6 @@ object PreferenceHelper {
                 it.putString(USER_LONGITUDE, value)
             }
         }
-
     var SharedPreferences.currentLatitude
         get() = getString(USER_LATITUDE, "")
         set(value) {
@@ -49,4 +51,27 @@ object PreferenceHelper {
                 it.putString(USER_LATITUDE, value)
             }
         }
+
+    var SharedPreferences.temperatureUnit
+        get() = getString(TEMPERATURE_UNIT, "")
+        set(value) {
+            editMe {
+                it.putString(USER_LATITUDE, value)
+            }
+        }
+    var SharedPreferences.windSpeedUnit
+        get() = getString(WIND_SPEED_UNIT, "")
+        set(value) {
+            editMe {
+                it.putString(WIND_SPEED_UNIT, value)
+            }
+        }
+    var SharedPreferences.language
+        get() = getString(LANGUAGE, "")
+        set(value) {
+            editMe {
+                it.putString(LANGUAGE, value)
+            }
+        }
+
 }

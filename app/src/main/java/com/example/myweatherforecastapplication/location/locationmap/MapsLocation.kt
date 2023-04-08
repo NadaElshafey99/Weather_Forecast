@@ -2,11 +2,9 @@ package com.example.myweatherforecastapplication.location.locationmap
 
 import android.Manifest
 import android.content.Intent
-import android.content.SharedPreferences.Editor
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
-import android.location.Location
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
@@ -17,17 +15,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.navArgs
 import com.example.myweatherforecastapplication.MainActivity
 import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.databinding.MapsLocationBinding
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLatitude
-import com.example.myweatherforecastapplication.splashScreen.viewmodel.PreferenceHelper.currentLongitude
+import com.example.myweatherforecastapplication.PreferenceHelper
+import com.example.myweatherforecastapplication.PreferenceHelper.currentLatitude
+import com.example.myweatherforecastapplication.PreferenceHelper.currentLongitude
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -35,7 +31,6 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -60,7 +55,7 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
     private lateinit var markerOptions: MarkerOptions
     private var longitude = 0.0
     private var latitude = 0.0
-    private var destination: String? = "fav"
+    private lateinit var destination: String
 
 
     override fun onCreateView(
@@ -72,14 +67,14 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
         selectedLocation = binding.doneButton
         mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        destination = arguments?.getString("previousDestination")
+        destination = arguments?.getString("previousDestination").toString()
         Log.i("TAG", "onCreateView: $destination")
         mapInitialize()
         selectedLocation.setOnClickListener {
-            when (destination=="initial" || destination==null) {
+            when (destination=="initial") {
                 true -> {
                     destination = "fav"
+                    Log.i("TAG", "onCreateView: $destination")
                     val prefs =
                         PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
                     prefs.currentLatitude = latitude.toString()
@@ -87,7 +82,7 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
                     val intent = Intent(context, MainActivity::class.java)
                     context?.startActivity(intent)
                     activity?.finish()
-
+                    Log.i("TAG", "onCreateView: $destination")
                 }
                 false -> {
                     val action = MapsLocationDirections.navigateFromMapsLocationToFavorite(
