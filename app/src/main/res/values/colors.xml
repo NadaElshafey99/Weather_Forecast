@@ -14,4 +14,5 @@
     <color name="forBackground">#332B3467</color>
     <color name="transparent">@android:color/transparent</color>
     <color name="transparentWithOpacity">#992B3467</color>
+    <color name="removeItem">#f44336</color>
 </resources>

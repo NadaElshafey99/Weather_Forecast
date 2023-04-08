@@ -16,12 +16,13 @@ class HomeScreenViewModel(
 ) : ViewModel() {
 
     private var weatherLiveData: MutableLiveData<Welcome> = MutableLiveData<Welcome>()
-    val weather: LiveData<Welcome> = weatherLiveData
+    var weather: LiveData<Welcome> = weatherLiveData
 
+    private var favWeatherLiveData: MutableLiveData<Welcome> = MutableLiveData<Welcome>()
+    var favWeather: LiveData<Welcome> = favWeatherLiveData
     init {
         getCurrentWeather(lat, lon)
     }
-
 
     private fun getCurrentWeather(lat: Double?, lon: Double?) {
 
@@ -31,4 +32,13 @@ class HomeScreenViewModel(
 
         }
     }
+     private fun getFavWeather(lat: Double?, lon: Double?) {
+
+        viewModelScope.launch(Dispatchers.IO)
+        {
+            favWeatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0))
+
+        }
+    }
+
 }

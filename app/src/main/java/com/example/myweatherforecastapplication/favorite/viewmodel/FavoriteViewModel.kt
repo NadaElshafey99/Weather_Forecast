@@ -18,22 +18,20 @@ class FavoriteViewModel(
     private var _favorites: MutableLiveData<List<Favorite>> = MutableLiveData()
     val favorites: LiveData<List<Favorite>> = _favorites
     private var weatherLiveData: MutableLiveData<Welcome> = MutableLiveData<Welcome>()
-    val weatherOfSelectedCountry: LiveData<Welcome> = weatherLiveData
+    var weatherOfSelectedCountry: LiveData<Welcome> = weatherLiveData
 
     init {
         getFavorites()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun getWeatherOfSelectedFav(lat: Double?, lon: Double?){
 
         viewModelScope.launch {
-            viewModelScope.async(Dispatchers.IO)
+            viewModelScope.launch(Dispatchers.IO)
             {
-                val result=repository.getWeather(lat?:0.0, lon?:0.0)
-                weatherLiveData.postValue(result)
-                result
-            }.await()
+                weatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0))
+
+            }
         }
 
     }

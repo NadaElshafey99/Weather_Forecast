@@ -14,6 +14,21 @@
         <action
             android:id="@+id/navigateFromHomeScreenToFavorite"
             app:destination="@id/favorite" />
+        <argument
+            android:name="lat"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue=""/>
+        <argument
+            android:name="lon"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue=""/>
+        <argument
+            android:name="fromDestination"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="" />
     </fragment>
 
     <fragment
@@ -49,6 +64,9 @@
             android:name="longitude"
             app:argType="string"
             android:defaultValue=""/>
+        <action
+            android:id="@+id/navigateFromFavoriteToHomeScreen"
+            app:destination="@id/homeScreen" />
     </fragment>
 
 </navigation>

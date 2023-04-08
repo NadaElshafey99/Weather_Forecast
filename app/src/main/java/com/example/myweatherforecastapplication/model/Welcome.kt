@@ -1,5 +1,7 @@
 package com.example.myweatherforecastapplication.model
 
+import java.io.Serializable
+
 
 data class Welcome (
     val lat: Double,
@@ -11,4 +13,4 @@ data class Welcome (
     val hourly: List<Current>,
     val daily: List<Daily>,
     val alerts: List<Alert>
-)
+): Serializable

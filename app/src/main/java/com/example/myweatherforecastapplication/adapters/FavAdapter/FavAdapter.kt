@@ -7,13 +7,13 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.favorite.view.OnClickListener
 import com.example.myweatherforecastapplication.model.Favorite
 import com.example.myweatherforecastapplication.model.Icon
-import com.example.myweatherforecastapplication.model.Welcome
 
 class FavAdapter(var context: Context, var onClickListener: OnClickListener) :
     ListAdapter<Favorite, FavAdapter.FavViewHolder>(
@@ -32,7 +32,6 @@ class FavAdapter(var context: Context, var onClickListener: OnClickListener) :
 
         val container: ConstraintLayout
             get() = itemView.findViewById(R.id.constraint)
-
 
     }
 
