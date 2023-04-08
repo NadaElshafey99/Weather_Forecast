@@ -1,5 +1,6 @@
 package com.example.myweatherforecastapplication.model
 
+import android.content.Context
 import com.example.myweatherforecastapplication.db.LocalSourceInterface
 import com.example.myweatherforecastapplication.network.RemoteSourceInterface
 import kotlinx.coroutines.flow.Flow
@@ -22,8 +23,8 @@ class Repository(
         }
     }
 
-    override suspend fun getWeather(lat:Double,lon:Double): Welcome {
-       return remoteSource.getCurrentWeather(lat,lon)
+    override suspend fun getWeather(lat:Double,lon:Double,context: Context): Welcome {
+       return remoteSource.getCurrentWeather(lat,lon,context)
     }
 
     override suspend fun getFavoritesDB(): Flow<List<Favorite>> {

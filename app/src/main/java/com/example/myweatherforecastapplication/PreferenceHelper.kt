@@ -12,7 +12,7 @@ object PreferenceHelper {
     val TEMPERATURE_UNIT = "TEMPERATURE_UNIT"
     val WIND_SPEED_UNIT = "WIND_SPEED_UNIT"
     val LANGUAGE = "LANGUAGE"
-
+    val UNIT = "UNIT"
     fun customPreference(context: Context, name: String): SharedPreferences =
         context.getSharedPreferences(name, Context.MODE_PRIVATE)
 
@@ -53,24 +53,31 @@ object PreferenceHelper {
         }
 
     var SharedPreferences.temperatureUnit
-        get() = getString(TEMPERATURE_UNIT, "")
+        get() = getString(TEMPERATURE_UNIT, "standard")
         set(value) {
             editMe {
-                it.putString(USER_LATITUDE, value)
+                it.putString(TEMPERATURE_UNIT, value)
             }
         }
     var SharedPreferences.windSpeedUnit
-        get() = getString(WIND_SPEED_UNIT, "")
+        get() = getString(WIND_SPEED_UNIT, "standard")
         set(value) {
             editMe {
                 it.putString(WIND_SPEED_UNIT, value)
             }
         }
     var SharedPreferences.language
-        get() = getString(LANGUAGE, "")
+        get() = getString(LANGUAGE, "en")
         set(value) {
             editMe {
                 it.putString(LANGUAGE, value)
+            }
+        }
+    var SharedPreferences.unit
+        get() = getString(UNIT, "standard")
+        set(value) {
+            editMe {
+                it.putString(UNIT, value)
             }
         }
 

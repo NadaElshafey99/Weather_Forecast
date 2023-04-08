@@ -8,7 +8,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myweatherforecastapplication.PreferenceHelper
+import com.example.myweatherforecastapplication.PreferenceHelper.language
 import com.example.myweatherforecastapplication.R
+import com.example.myweatherforecastapplication.homeScreen.view.CUSTOM_PREF_NAME
 import com.example.myweatherforecastapplication.model.Current
 import com.example.myweatherforecastapplication.model.Icon
 import java.text.SimpleDateFormat
@@ -41,7 +44,8 @@ class HourlyWeatherAdapter(var context: Context) :
     }
 
     override fun onBindViewHolder(holder: HourlyViewHolder, position: Int) {
-        val simpleDate = SimpleDateFormat("hh aa")
+        val prefs = PreferenceHelper.customPreference(context, CUSTOM_PREF_NAME)
+        val simpleDate = SimpleDateFormat("hh aa",Locale(prefs.language?:"en"))
         val currentHourlyWeather: Current = getItem(position)
         val currentDate = simpleDate.format(currentHourlyWeather.dt * 1000L)
         holder.weatherDegree.text = "${currentHourlyWeather.temp}°"

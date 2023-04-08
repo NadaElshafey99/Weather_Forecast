@@ -1,5 +1,7 @@
 package com.example.myweatherforecastapplication
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -10,6 +12,9 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.myweatherforecastapplication.PreferenceHelper.language
+import com.example.myweatherforecastapplication.homeScreen.view.CUSTOM_PREF_NAME
+import com.example.myweatherforecastapplication.utils.LanguageConfig
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
@@ -19,11 +24,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var toolbar: MaterialToolbar
+    private lateinit var prefs: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        navController  = findNavController(R.id.fragmentContainerView)
+        navController = findNavController(R.id.fragmentContainerView)
         toolbar = findViewById(R.id.toolBar)
         setSupportActionBar(toolbar)
 
@@ -39,9 +46,16 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         supportActionBar?.setDisplayShowTitleEnabled(false)
     }
+
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.fragmentContainerView)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        prefs = PreferenceHelper.customPreference(newBase, CUSTOM_PREF_NAME)
+        val languageCode = prefs.language ?: "en"
+        val context = LanguageConfig.changeLanguage(newBase, languageCode)
+        super.attachBaseContext(context)
+    }
 }

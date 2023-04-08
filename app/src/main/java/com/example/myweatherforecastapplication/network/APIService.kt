@@ -11,6 +11,7 @@ interface APIService {
         @Query("lat") latitude: Double?,
         @Query("lon") longitude: Double?,
         @Query("units") units: String?,
-        @Query("appid") appid: String?
+        @Query("lang")language:String?,
+        @Query("appid") appid: String?,
     ): Welcome
 }

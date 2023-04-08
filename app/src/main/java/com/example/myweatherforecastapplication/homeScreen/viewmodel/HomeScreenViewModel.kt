@@ -1,5 +1,6 @@
 package com.example.myweatherforecastapplication.homeScreen.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,31 +13,22 @@ import kotlinx.coroutines.launch
 class HomeScreenViewModel(
     private val repository: RepositoryInterface,
     lat: Double,
-    lon: Double
+    lon: Double,
+    context: Context
 ) : ViewModel() {
 
     private var weatherLiveData: MutableLiveData<Welcome> = MutableLiveData<Welcome>()
     var weather: LiveData<Welcome> = weatherLiveData
 
-    private var favWeatherLiveData: MutableLiveData<Welcome> = MutableLiveData<Welcome>()
-    var favWeather: LiveData<Welcome> = favWeatherLiveData
     init {
-        getCurrentWeather(lat, lon)
+        getCurrentWeather(lat, lon,context)
     }
 
-    private fun getCurrentWeather(lat: Double?, lon: Double?) {
+    private fun getCurrentWeather(lat: Double?, lon: Double?,context: Context) {
 
         viewModelScope.launch(Dispatchers.IO)
         {
-            weatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0))
-
-        }
-    }
-     private fun getFavWeather(lat: Double?, lon: Double?) {
-
-        viewModelScope.launch(Dispatchers.IO)
-        {
-            favWeatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0))
+            weatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0,context))
 
         }
     }

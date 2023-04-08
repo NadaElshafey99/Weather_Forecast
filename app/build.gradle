@@ -12,6 +12,7 @@ android {
     compileSdk 33
 
     defaultConfig {
+        resConfigs("en","ar")
         applicationId "com.example.myweatherforecastapplication"
         minSdk 24
         targetSdk 33

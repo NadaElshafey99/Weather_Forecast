@@ -18,6 +18,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import com.example.myweatherforecastapplication.MainActivity
 import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.databinding.MapsLocationBinding
@@ -56,6 +57,7 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
     private var longitude = 0.0
     private var latitude = 0.0
     private lateinit var destination: String
+    private val mapsArgs: MapsLocationArgs by navArgs()
 
 
     override fun onCreateView(
@@ -69,12 +71,13 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         destination = arguments?.getString("previousDestination").toString()
         Log.i("TAG", "onCreateView: $destination")
+        Log.i("TAG", "Lat: $latitude")
+        Log.i("TAG", "Long: $longitude")
         mapInitialize()
         selectedLocation.setOnClickListener {
-            when (destination=="initial") {
+            when (destination == "initial") {
                 true -> {
                     destination = "fav"
-                    Log.i("TAG", "onCreateView: $destination")
                     val prefs =
                         PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
                     prefs.currentLatitude = latitude.toString()
@@ -82,17 +85,35 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
                     val intent = Intent(context, MainActivity::class.java)
                     context?.startActivity(intent)
                     activity?.finish()
-                    Log.i("TAG", "onCreateView: $destination")
                 }
                 false -> {
-                    val action = MapsLocationDirections.navigateFromMapsLocationToFavorite(
-                        "$latitude",
-                        "$longitude"
-                    )
-                    Navigation.findNavController(it).navigate(action)
+                    try {
+                        val args = mapsArgs.fromDestination
+                        when (args == "setting") {
+                            true -> {
+                                val action =
+                                    MapsLocationDirections.navigateFromMapsLocationToHomeScreen(
+                                        "$latitude", "$longitude", "setting"
+                                    )
+                                Navigation.findNavController(it).navigate(action)
+                            }
+                            false -> {
+                                val action =
+                                    MapsLocationDirections.navigateFromMapsLocationToFavorite(
+                                        "$latitude",
+                                        "$longitude"
+                                    )
+                                Navigation.findNavController(it).navigate(action)
+                            }
+                        }
+                    } catch (ex: Exception) {
+                        print(ex.printStackTrace())
+                    }
+
                 }
             }
-
+            Log.i("TAG", "Lat: $latitude")
+            Log.i("TAG", "Long: $longitude")
 
         }
         return binding.root
@@ -156,8 +177,8 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
     private fun gotoLatLng(latitude: Double, longitude: Double, zoom: Float) {
         val latLng = LatLng(latitude, longitude)
         val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom)
-        this.latitude = latitude
-        this.longitude = longitude
+//        this.latitude = latitude
+//        this.longitude = longitude
         googleMap?.moveCamera(CameraUpdateFactory.newLatLng(latLng))
         googleMap?.animateCamera(cameraUpdate)
 
@@ -189,10 +210,11 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
                                         location.latitude,
                                         location.longitude
                                     )
-                                ).title("It's Me!")
-                            );
-                            longitude = location.longitude
+                                ).title("it's me")
+                            )
                             latitude = location.latitude
+                            longitude = location.longitude
+                            Log.i("TAG", "onPermissionGranted: $latitude $longitude")
                         };
                     }
                     fusedLocationProviderClient.lastLocation.addOnFailureListener {

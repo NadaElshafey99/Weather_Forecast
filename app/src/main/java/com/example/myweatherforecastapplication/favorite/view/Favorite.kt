@@ -98,10 +98,11 @@ class Favorite : Fragment(), OnClickListener {
     }
 
     private fun getWeatherOfFav(latitude: Double, longitude: Double) {
-        favoriteViewModel.getWeatherOfSelectedFav(latitude, longitude)
+        favoriteViewModel.getWeatherOfSelectedFav(latitude, longitude, requireContext())
         geocoder = Geocoder(requireContext(), Locale.getDefault())
         addresses = geocoder.getFromLocation(latitude, longitude, 1) as List<Address>
-        val state = addresses.get(0).getAdminArea()
+
+        val state = addresses.get(0).getAdminArea()?:addresses.toString()
         val country = addresses.get(0).getCountryName()
         val split = state.split(" ").toTypedArray()
         val timeZone = "${split[0]},$country"
@@ -123,7 +124,7 @@ class Favorite : Fragment(), OnClickListener {
         val action = FavoriteDirections.navigateFromFavoriteToHomeScreen(
             favorite.lat.toString(),
             favorite.lon.toString(),
-            "fav"
+            fromDestination = "fav"
         )
         Navigation.findNavController(requireView()).navigate(action)
     }
