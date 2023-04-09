@@ -27,19 +27,28 @@ class Repository(
        return remoteSource.getCurrentWeather(lat,lon,context)
     }
 
-    override suspend fun getFavoritesDB(): Flow<List<Favorite>> {
+    override suspend fun getFavoritesDB(): Flow<List<Welcome>> {
         return localSource.getAllFavorites()
     }
 
-    override suspend fun addFavoriteToDB(favorite: Favorite) {
-        localSource.insertFavorite(favorite)
+    override suspend fun addFavoriteToDB(welcome: Welcome) {
+        localSource.insertFavorite(welcome)
     }
 
-    override suspend fun updateFavoriteToDB(favorite: Favorite) {
-        localSource.updateFavorite(favorite)
+    override suspend fun updateFavoriteToDB(welcome: Welcome) {
+        localSource.updateFavorite(welcome)
     }
 
-    override suspend fun deleteFavoriteToDB(favorite: Favorite) {
-        localSource.deleteFavorite(favorite)
+    override suspend fun deleteFavoriteToDB(welcome: Welcome) {
+        localSource.deleteFavorite(welcome)
     }
+
+    override suspend fun insertCurrentToDB(welcome: Welcome) {
+        localSource.insertCurrentHome(welcome)
+    }
+
+    override suspend fun getCurrentWeatherFromDBNoConnection(): Welcome{
+        return localSource.getCurrentWeatherFromDB()
+    }
+
 }

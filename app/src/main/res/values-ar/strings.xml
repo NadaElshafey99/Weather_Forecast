@@ -46,6 +46,8 @@
     <string name="milePerHour">ميل/ساعة</string>
     <string name="enable">تفعيل</string>
     <string name="disable">إلغاء</string>
-    <string name="save">"حفظ "</string>
+    <string name="save">حفظ</string>
+    <string name="NoInternet">لا يوجد اتصال بالإنترنت</string>
+    <string name="checkConnection">تأكد من شبكة الإنترنت</string>
 
 </resources>

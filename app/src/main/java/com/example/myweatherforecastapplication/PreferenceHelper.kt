@@ -53,14 +53,14 @@ object PreferenceHelper {
         }
 
     var SharedPreferences.temperatureUnit
-        get() = getString(TEMPERATURE_UNIT, "standard")
+        get() = getString(TEMPERATURE_UNIT, "°")
         set(value) {
             editMe {
                 it.putString(TEMPERATURE_UNIT, value)
             }
         }
     var SharedPreferences.windSpeedUnit
-        get() = getString(WIND_SPEED_UNIT, "standard")
+        get() = getString(WIND_SPEED_UNIT, "m/sec")
         set(value) {
             editMe {
                 it.putString(WIND_SPEED_UNIT, value)

@@ -1,6 +1,9 @@
 package com.example.myweatherforecastapplication.homeScreen.view
 
+import android.app.Dialog
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
@@ -8,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -30,9 +34,15 @@ import com.example.myweatherforecastapplication.PreferenceHelper
 import com.example.myweatherforecastapplication.PreferenceHelper.currentLatitude
 import com.example.myweatherforecastapplication.PreferenceHelper.currentLongitude
 import com.example.myweatherforecastapplication.PreferenceHelper.language
+import com.example.myweatherforecastapplication.PreferenceHelper.notification
+import com.example.myweatherforecastapplication.PreferenceHelper.unit
+import com.example.myweatherforecastapplication.PreferenceHelper.userLocation
 import com.example.myweatherforecastapplication.PreferenceHelper.windSpeedUnit
+import com.example.myweatherforecastapplication.utils.NetworkConnection
+import com.example.myweatherforecastapplication.utils.ViewState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -55,6 +65,7 @@ class HomeScreen : Fragment() {
     private lateinit var currentSunrise: TextView
     private lateinit var currentSunset: TextView
     private lateinit var currentFeelsLike: TextView
+    private lateinit var dialog: Dialog
     private lateinit var iconDescribeWeather: ImageView
     private lateinit var hourlyWeatherAdapter: HourlyWeatherAdapter
     private lateinit var dailyWeatherAdapter: DailyWeatherAdapter
@@ -62,6 +73,7 @@ class HomeScreen : Fragment() {
     private lateinit var simpleSunrise: SimpleDateFormat
     private lateinit var homeScreenViewModel: HomeScreenViewModel
     private lateinit var homeScreenViewModelFactory: HomeScreenViewModelFactory
+    private lateinit var okButton: Button
     private var hourlyList: MutableList<Current>? = mutableListOf()
     private var dailyList: MutableList<Daily>? = mutableListOf()
     private lateinit var geocoder: Geocoder
@@ -71,14 +83,17 @@ class HomeScreen : Fragment() {
     private var longitude: Double? = null
     private val homeArgs: HomeScreenArgs by navArgs()
     private var fromDestination: String = "fav"
+    private lateinit var hasNetworkConnection: NetworkConnection
+    private var allowRefresh = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        dialog = Dialog(requireContext())
         prefs = PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
         simpleDate = SimpleDateFormat("EEEE , dd", Locale(prefs.language ?: "en"))
         simpleSunrise = SimpleDateFormat("hh:mm aa", Locale(prefs.language ?: "en"))
         hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
         dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
-//        prefs.itemDisplay="current"
+        hasNetworkConnection = NetworkConnection.getInstance(requireContext())
     }
 
     override fun onCreateView(
@@ -88,6 +103,20 @@ class HomeScreen : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home_screen, container, false)
         initialUI(view)
+        dialog.setContentView(R.layout.connection_popup_dialog)
+        okButton = dialog.findViewById(R.id.ok_button)
+
+        return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        if (allowRefresh)
+//        {
+//            allowRefresh = false;
+////            lst_applist = db.load_apps()
+//            getFragmentManager()?.beginTransaction()?.detach(this)?.attach(this)?.commit();
+//        }
         try {
             latitude = homeArgs.lat?.toDouble()
             longitude = homeArgs.lon?.toDouble()
@@ -108,26 +137,72 @@ class HomeScreen : Fragment() {
             )
         homeScreenViewModel =
             ViewModelProvider(this, homeScreenViewModelFactory).get(HomeScreenViewModel::class.java)
+        observeState()
+    }
 
-        homeScreenViewModel.weather.observe(requireActivity()) { weather ->
-            if (weather != null) {
-                lifecycleScope.launch(Dispatchers.Main) {
-                    updateUI(weather)
+    private fun observeState() {
+        if (hasNetworkConnection.isOnline()) {
+            homeScreenViewModel.weather.observe(requireActivity()) { weather ->
+                if (weather != null) {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        updateUI(weather)
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
+                }
+            }
+        } else {
+            showDialog()
+            lifecycleScope.launch(Dispatchers.IO)
+            {
+                val result = homeScreenViewModel.getCurrentWeatherFromDBNoConnection()
+                withContext(Dispatchers.Main) {
+                    updateUI(result)
                 }
 
-                Log.i("TAG", "Latitude: ${weather.lat}")
-                Log.i("TAG", "Longitude: ${weather.lon}")
-            } else {
-                Toast.makeText(requireContext(), "FAIL", Toast.LENGTH_LONG).show()
             }
         }
 
-        return view
+        /*lifecycleScope.launchWhenStarted {
+            homeScreenViewModel.state.collect { state ->
+                when (state) {
+                    is ViewState.ShowLoading -> {
+                        showLoading()
+                    }
+                    is ViewState.ShowData -> {
+                        showData(state.data)
+                    }
+                    is ViewState.ShowError -> {
+                        showError(state.error)
+                    }
+
+                }
+
+            }
+        }*/
+    }
+
+    private fun showLoading() {
+
+//        binding.rvAllProducts.visibility = View.GONE
+//        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun showData(data: Welcome) {
+//        binding.rvAllProducts.visibility = View.VISIBLE
+//        binding.progressBar.visibility = View.GONE
+//        myAdapter.submitList(data)
+    }
+
+    private fun showError(error: Throwable) {
+//        binding.progressBar.visibility = View.GONE
+//        Toast.makeText(this, error.message, Toast.LENGTH_LONG).show()
     }
 
     override fun onPause() {
         super.onPause()
         Log.i("TAG", "onPause: ")
+        allowRefresh = true
 
     }
 
@@ -135,13 +210,13 @@ class HomeScreen : Fragment() {
         super.onStop()
         Log.i("TAG", "onStop: ")
         homeArgs.toBundle().clear()
-//        findNavController().popBackStack()
 
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         Log.i("TAG", "onDestroyView: ")
+        allowRefresh = false
 //        fragmentManager?.beginTransaction()?.detach(this)?.attach(this)?.commit()
     }
 
@@ -172,36 +247,41 @@ class HomeScreen : Fragment() {
 
     private fun updateUI(weather: Welcome) {
         geocoder = Geocoder(requireContext(), Locale.getDefault())
-        addresses = geocoder.getFromLocation(weather.lat, weather.lon, 1) as List<Address>
+        addresses =
+            geocoder.getFromLocation(weather.lat ?: 0.0, weather.lon ?: 0.0, 1) as List<Address>
         val state = addresses.get(0).getAdminArea()
-        val country = addresses.get(0).getCountryName()
+        val country = addresses.get(0).getCountryName() ?: addresses
         val split = state.split(" ").toTypedArray()
         val timeZone = "${split[0]} \n $country"
         countryName.text = timeZone
-        countryDegree.text = "${weather.current.temp} °"
-        currentDay.text = simpleDate.format(weather.current.dt * 1000L)
-        currentDescription.text = weather.current.weather.get(0).description
+        countryDegree.text = "${weather.current?.temp} °"
+        currentDay.text = simpleDate.format(weather.current?.dt ?: 0.0 * 1000L)
+        currentDescription.text = weather.current?.weather?.get(0)?.description
         hourlyList = (weather.hourly).take(24) as MutableList<Current>
         dailyList = weather.daily as MutableList<Daily>
-        currentPressure.text = "${weather.current.pressure} hpa"
-        currentHumidity.text = "${weather.current.humidity} %"
-        currentWind.text = "${weather.current.wind_speed} ${prefs.windSpeedUnit}"
-        currentCloud.text = "${weather.current.clouds} %"
-        currentVisibility.text = "${weather.current.visibility} m"
-        currentUV.text = "${weather.current.uvi}"
+        currentPressure.text = "${weather.current?.pressure} hpa"
+        currentHumidity.text = "${weather.current?.humidity} %"
+        when (prefs.unit) {
+            "imperial" -> prefs.windSpeedUnit = getString(R.string.milePerHour)
+            else -> prefs.windSpeedUnit = getString(R.string.meterPerSec)
+        }
+        currentWind.text = "${weather.current?.wind_speed} ${prefs.windSpeedUnit}"
+        currentCloud.text = "${weather.current?.clouds} %"
+        currentVisibility.text = "${weather.current?.visibility} m"
+        currentUV.text = "${weather.current?.uvi}"
         currentSunset.text =
-            simpleSunrise.format((weather.current.sunset?.times(1000L) ?: 0))
+            simpleSunrise.format((weather.current?.sunset?.times(1000L) ?: 0))
         currentSunrise.text =
-            simpleSunrise.format(weather.current.sunrise?.times(1000L) ?: 0)
-        currentFeelsLike.text = weather.current.feels_like.toString()
+            simpleSunrise.format(weather.current?.sunrise?.times(1000L) ?: 0)
+        currentFeelsLike.text = weather.current?.feels_like.toString()
         hourlyWeatherAdapter.submitList(hourlyList)
+        dailyWeatherAdapter.submitList(dailyList)
         hourlyRecyclerView.apply {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = RecyclerView.HORIZONTAL
                 adapter = hourlyWeatherAdapter
             }
         }
-        dailyWeatherAdapter.submitList(dailyList)
         dailyRecyclerView.apply {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = RecyclerView.VERTICAL
@@ -209,15 +289,24 @@ class HomeScreen : Fragment() {
             }
         }
 
-        val icon = weather.current.weather.get(0).icon.lowercase()
+        val icon = weather.current?.weather?.get(0)?.icon?.lowercase()
         val imageResource: Int =
             resources.getIdentifier(
-                Icon.getIcon(icon),
+                Icon.getIcon(icon ?: "01n"),
                 "drawable",
                 context?.packageName
             )
         iconDescribeWeather.setImageResource(imageResource)
     }
 
+    private fun showDialog() {
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+        okButton.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
 
 }

@@ -16,27 +16,14 @@ import kotlinx.coroutines.launch
 class FavoriteViewModel(
     private val repository: RepositoryInterface,
 ) : ViewModel() {
-    private var _favorites: MutableLiveData<List<Favorite>> = MutableLiveData()
-    val favorites: LiveData<List<Favorite>> = _favorites
-    private var weatherLiveData: MutableLiveData<Welcome> = MutableLiveData<Welcome>()
-    var weatherOfSelectedCountry: LiveData<Welcome> = weatherLiveData
+    private var _favorites: MutableLiveData<List<Welcome>> = MutableLiveData()
+    val favorites: LiveData<List<Welcome>> = _favorites
+    private var _weatherLiveData: MutableLiveData<Welcome> = MutableLiveData<Welcome>()
+    val weatherOfSelectedCountry: LiveData<Welcome> = _weatherLiveData
 
     init {
         getFavorites()
     }
-
-    fun getWeatherOfSelectedFav(lat: Double?, lon: Double?,context: Context){
-
-        viewModelScope.launch {
-            viewModelScope.launch(Dispatchers.IO)
-            {
-                weatherLiveData.postValue(repository.getWeather(lat?:0.0, lon?:0.0,context))
-
-            }
-        }
-
-    }
-
     private fun getFavorites() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getFavoritesDB().collect {
@@ -44,18 +31,25 @@ class FavoriteViewModel(
             }
         }
     }
+    fun getWeatherOfSelectedFav(lat: Double?, lon: Double?, context: Context) {
 
-    fun addProductToDB(favorite: Favorite) {
+        viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO)
+            {
+                _weatherLiveData.postValue(repository.getWeather(lat ?: 0.0, lon ?: 0.0, context))
+            }
+        }
+    }
+    fun addProductToDB(welcome: Welcome) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addFavoriteToDB(favorite)
+            repository.addFavoriteToDB(welcome)
             getFavorites()
         }
 
     }
-
-    fun deleteProductFromDB(favorite: Favorite) {
+    fun deleteProductFromDB(welcome: Welcome) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteFavoriteToDB(favorite)
+            repository.deleteFavoriteToDB(welcome)
             getFavorites()
         }
 

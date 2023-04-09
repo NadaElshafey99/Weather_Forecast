@@ -47,4 +47,6 @@
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
     <string name="save">"Save "</string>
+    <string name="NoInternet">No Internet Connection</string>
+    <string name="checkConnection">Check your connection\"</string>
 </resources>
