@@ -29,6 +29,9 @@
             android:defaultValue=""
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/navigateFromHomeScreenToAlert"
+            app:destination="@id/alert" />
     </fragment>
 
     <fragment
@@ -76,6 +79,15 @@
             app:argType="string" />
         <action
             android:id="@+id/navigateFromFavoriteToHomeScreen"
+            app:destination="@id/homeScreen" />
+    </fragment>
+    <fragment
+        android:id="@+id/alert"
+        android:name="com.example.myweatherforecastapplication.alert.view.Alert"
+        android:label="fragment_alert"
+        tools:layout="@layout/fragment_alert" >
+        <action
+            android:id="@+id/navigateFromAlertToHomeScreen"
             app:destination="@id/homeScreen" />
     </fragment>
 

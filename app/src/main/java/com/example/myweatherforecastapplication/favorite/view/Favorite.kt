@@ -38,7 +38,7 @@ import com.example.myweatherforecastapplication.utils.NetworkConnection
 import java.util.*
 
 
-class Favorite : Fragment(), OnClickListener {
+class Favorite : Fragment(), OnClickListener{
 
     private lateinit var favRecyclerView: RecyclerView
     private lateinit var favAdapter: FavAdapter

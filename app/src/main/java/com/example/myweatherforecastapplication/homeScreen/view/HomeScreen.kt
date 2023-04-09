@@ -15,10 +15,10 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,12 +34,9 @@ import com.example.myweatherforecastapplication.PreferenceHelper
 import com.example.myweatherforecastapplication.PreferenceHelper.currentLatitude
 import com.example.myweatherforecastapplication.PreferenceHelper.currentLongitude
 import com.example.myweatherforecastapplication.PreferenceHelper.language
-import com.example.myweatherforecastapplication.PreferenceHelper.notification
 import com.example.myweatherforecastapplication.PreferenceHelper.unit
-import com.example.myweatherforecastapplication.PreferenceHelper.userLocation
 import com.example.myweatherforecastapplication.PreferenceHelper.windSpeedUnit
 import com.example.myweatherforecastapplication.utils.NetworkConnection
-import com.example.myweatherforecastapplication.utils.ViewState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -73,6 +70,16 @@ class HomeScreen : Fragment() {
     private lateinit var simpleSunrise: SimpleDateFormat
     private lateinit var homeScreenViewModel: HomeScreenViewModel
     private lateinit var homeScreenViewModelFactory: HomeScreenViewModelFactory
+    private lateinit var pressure:TextView
+    private lateinit var humidity:TextView
+    private lateinit var wind:TextView
+    private lateinit var cloud:TextView
+    private lateinit var UV:TextView
+    private lateinit var visibility:TextView
+    private lateinit var sunRise:TextView
+    private lateinit var sunSet:TextView
+    private lateinit var feelsLike:TextView
+    private lateinit var gridGroup:Group
     private lateinit var okButton: Button
     private var hourlyList: MutableList<Current>? = mutableListOf()
     private var dailyList: MutableList<Daily>? = mutableListOf()
@@ -103,7 +110,7 @@ class HomeScreen : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home_screen, container, false)
         initialUI(view)
-        dialog.setContentView(R.layout.connection_popup_dialog)
+        dialog.setContentView(R.layout.popup_connection_dialog)
         okButton = dialog.findViewById(R.id.ok_button)
 
         return view
@@ -240,6 +247,7 @@ class HomeScreen : Fragment() {
     }
 
     private fun updateUI(weather: Welcome) {
+        gridGroup=requireView().findViewById(R.id.grid_group)
         geocoder = Geocoder(requireContext(), Locale.getDefault())
         addresses =
             geocoder.getFromLocation(weather.lat ?: 0.0, weather.lon ?: 0.0, 1) as List<Address>

@@ -13,6 +13,8 @@ object PreferenceHelper {
     val WIND_SPEED_UNIT = "WIND_SPEED_UNIT"
     val LANGUAGE = "LANGUAGE"
     val UNIT = "UNIT"
+    val LOCATION_ALERT = "LOCATION_ALERT"
+    val NOTIFICATION_ALARM_FOR_ALERT = ""
     fun customPreference(context: Context, name: String): SharedPreferences =
         context.getSharedPreferences(name, Context.MODE_PRIVATE)
 
@@ -78,6 +80,20 @@ object PreferenceHelper {
         set(value) {
             editMe {
                 it.putString(UNIT, value)
+            }
+        }
+    var SharedPreferences.locationAlert
+        get() = getString(LOCATION_ALERT, "")
+        set(value) {
+            editMe {
+                it.putString(LOCATION_ALERT, value)
+            }
+        }
+    var SharedPreferences.kindOfALERT
+        get() = getString(NOTIFICATION_ALARM_FOR_ALERT, "standard")
+        set(value) {
+            editMe {
+                it.putString(NOTIFICATION_ALARM_FOR_ALERT, value)
             }
         }
 

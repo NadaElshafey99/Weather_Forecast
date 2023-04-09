@@ -57,5 +57,7 @@ class MainActivity : AppCompatActivity() {
         val languageCode = prefs.language ?: "en"
         val context = LanguageConfig.changeLanguage(newBase, languageCode)
         super.attachBaseContext(context)
+
     }
+
 }

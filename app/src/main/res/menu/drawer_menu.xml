@@ -11,6 +11,10 @@
             android:title="@string/favorite"
             android:icon="@drawable/favorite"/>
         <item
+            android:id="@+id/alert"
+            android:title="@string/alert"
+            android:icon="@drawable/alert"/>
+        <item
             android:id="@+id/settingScreen"
             android:title="@string/setting"
             android:icon="@drawable/settings"/>
