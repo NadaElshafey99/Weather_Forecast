@@ -28,11 +28,11 @@ class HomeScreenViewModel(
     val state = _state.asSharedFlow()
 
     init {
-        if(hasNetworkConnection.isOnline())
+        if (hasNetworkConnection.isOnline())
             getCurrentWeather(lat, lon, context)
     }
 
-//    try {
+    //    try {
 //        val response = repository.getWeather(lat , lon , context)
 //        when (response) {
 //            is Throwable -> {
@@ -59,16 +59,14 @@ class HomeScreenViewModel(
         }
 
     }
-
     private fun saveCurrentWeather() {
         viewModelScope.launch(Dispatchers.IO)
         {
             weather.value?.state = "current"
             weather.value?.let { repository.insertCurrentToDB(it) }
-//            repository.upsertCurrentToDB(favorite)
         }
     }
-
-    suspend fun getCurrentWeatherFromDBNoConnection()=repository.getCurrentWeatherFromDBNoConnection()
+    suspend fun getCurrentWeatherFromDBNoConnection() =
+        repository.getCurrentWeatherFromDBNoConnection()
 
 }

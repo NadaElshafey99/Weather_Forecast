@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myweatherforecastapplication.PreferenceHelper
+import com.example.myweatherforecastapplication.PreferenceHelper.currentLatitude
+import com.example.myweatherforecastapplication.PreferenceHelper.currentLongitude
 import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.adapters.FavAdapter.FavAdapter
 import com.example.myweatherforecastapplication.adapters.FavAdapter.SwipeItem
@@ -44,10 +46,7 @@ class Favorite : Fragment(), OnClickListener {
     private lateinit var favoriteViewModel: FavoriteViewModel
     private lateinit var favoriteViewModelFactory: FavoriteViewModelFactory
     private lateinit var addButton: Button
-    private lateinit var prefs: SharedPreferences
     private val favoriteArgs: FavoriteArgs by navArgs()
-    private lateinit var geocoder: Geocoder
-    private lateinit var addresses: List<Address>
     private lateinit var hasNetworkConnection: NetworkConnection
     private lateinit var connectionGroup: Group
     private lateinit var noConnectionGroup: Group
@@ -64,7 +63,6 @@ class Favorite : Fragment(), OnClickListener {
         favoriteViewModel =
             ViewModelProvider(this, favoriteViewModelFactory).get(FavoriteViewModel::class.java)
         favAdapter = FavAdapter(requireContext(), this)
-        prefs = PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
         hasNetworkConnection = NetworkConnection.getInstance(requireContext())
     }
 

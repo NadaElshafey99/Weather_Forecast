@@ -47,8 +47,6 @@ class LocalSource private constructor(context: Context) : LocalSourceInterface {
     }
 
     override suspend fun getCurrentWeatherFromDB(): Welcome {
-        Log.i("TAG", "getCurrentWeatherFromDB: ${favoriteDAO.getCurrent(state = "current")}")
-//        favoriteDAO.insertCurrent()
         return favoriteDAO.getCurrent("current").get(0)
 
     }

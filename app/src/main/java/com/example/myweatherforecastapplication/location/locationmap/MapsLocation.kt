@@ -157,6 +157,9 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
             val location = addressResult.adminArea
             longitude = addressResult.longitude
             latitude = addressResult.latitude
+
+            Log.i("TAG", "Lat in go to search: $latitude")
+            Log.i("TAG", "Long in go to search: $longitude")
             gotoLatLng(latitude, longitude, 17F)
             if (marker != null)
                 marker?.remove()
@@ -177,8 +180,10 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
     private fun gotoLatLng(latitude: Double, longitude: Double, zoom: Float) {
         val latLng = LatLng(latitude, longitude)
         val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom)
-//        this.latitude = latitude
-//        this.longitude = longitude
+        this.latitude = latitude
+        this.longitude = longitude
+        Log.i("TAG", "Lat in go to latlang: $latitude")
+        Log.i("TAG", "Long in go to latlang: $longitude")
         googleMap?.moveCamera(CameraUpdateFactory.newLatLng(latLng))
         googleMap?.animateCamera(cameraUpdate)
 
@@ -212,18 +217,17 @@ class MapsLocation : Fragment(), OnMapReadyCallback {
                                     )
                                 ).title("it's me")
                             )
-                            latitude = location.latitude
-                            longitude = location.longitude
                             Log.i("TAG", "onPermissionGranted: $latitude $longitude")
                         };
                     }
                     fusedLocationProviderClient.lastLocation.addOnFailureListener {
                         Toast.makeText(context, "error ${it.message}", Toast.LENGTH_LONG).show()
                     }.addOnSuccessListener {
+                        latitude = it.latitude
+                        longitude = it.longitude
                         val latLng = LatLng(it.latitude, it.longitude)
                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17F))
                     }
-
                 }
 
                 override fun onPermissionDenied(permissionDeniedResponse: PermissionDeniedResponse?) {

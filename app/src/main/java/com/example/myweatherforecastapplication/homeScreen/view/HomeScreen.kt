@@ -111,12 +111,6 @@ class HomeScreen : Fragment() {
 
     override fun onResume() {
         super.onResume()
-//        if (allowRefresh)
-//        {
-//            allowRefresh = false;
-////            lst_applist = db.load_apps()
-//            getFragmentManager()?.beginTransaction()?.detach(this)?.attach(this)?.commit();
-//        }
         try {
             latitude = homeArgs.lat?.toDouble()
             longitude = homeArgs.lon?.toDouble()

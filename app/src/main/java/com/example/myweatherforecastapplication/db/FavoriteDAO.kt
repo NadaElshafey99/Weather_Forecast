@@ -13,7 +13,7 @@ interface FavoriteDAO {
     fun getAllFavorites(state: String): Flow<List<Welcome>>
 
     @Query("SELECT * From weather WHERE state = :state")
-    suspend fun getCurrent(state:String): List<Welcome>
+    suspend fun getCurrent(state: String): List<Welcome>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFavorite(welcome: Welcome)
@@ -29,16 +29,12 @@ interface FavoriteDAO {
 
     suspend fun insertOrUpdate(welcome: Welcome) {
         val itemFromDB = getCurrent("current")
-        Log.i("TAG", "insertOrUpdate: $itemFromDB")
         if (!itemFromDB.isEmpty()) {
-            Log.i("TAG", "insertOrUpdate: ${itemFromDB.get(0)}")
             if (itemFromDB.get(0).state == "current") {
                 deleteFavorite(itemFromDB.get(0))
                 insertCurrent(welcome)
-                Log.i("TAG", "insertOrUpdate: done delete and insert")
             } else
                 insertCurrent(welcome)
-            Log.i("TAG", "insertOrUpdate: Done insert")
         }
 
     }
