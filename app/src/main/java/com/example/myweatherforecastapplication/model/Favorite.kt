@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "favorites")
 data class Favorite(
-    @PrimaryKey
+    val id:Int,
+    val state:String,
     val lat: Double,
     val lon: Double,
     val timeZone:String?,

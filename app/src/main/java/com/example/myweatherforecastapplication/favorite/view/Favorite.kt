@@ -5,12 +5,14 @@ import android.content.SharedPreferences
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
@@ -28,7 +30,9 @@ import com.example.myweatherforecastapplication.favorite.viewmodel.FavoriteViewM
 import com.example.myweatherforecastapplication.homeScreen.view.CUSTOM_PREF_NAME
 import com.example.myweatherforecastapplication.model.Favorite
 import com.example.myweatherforecastapplication.model.Repository
+import com.example.myweatherforecastapplication.model.Welcome
 import com.example.myweatherforecastapplication.network.APIClient
+import com.example.myweatherforecastapplication.utils.NetworkConnection
 import java.util.*
 
 
@@ -36,7 +40,7 @@ class Favorite : Fragment(), OnClickListener {
 
     private lateinit var favRecyclerView: RecyclerView
     private lateinit var favAdapter: FavAdapter
-    private var favList: MutableList<Favorite>? = mutableListOf()
+    private var favList: MutableList<Welcome>? = mutableListOf()
     private lateinit var favoriteViewModel: FavoriteViewModel
     private lateinit var favoriteViewModelFactory: FavoriteViewModelFactory
     private lateinit var addButton: Button
@@ -44,6 +48,9 @@ class Favorite : Fragment(), OnClickListener {
     private val favoriteArgs: FavoriteArgs by navArgs()
     private lateinit var geocoder: Geocoder
     private lateinit var addresses: List<Address>
+    private lateinit var hasNetworkConnection: NetworkConnection
+    private lateinit var connectionGroup: Group
+    private lateinit var noConnectionGroup: Group
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +65,7 @@ class Favorite : Fragment(), OnClickListener {
             ViewModelProvider(this, favoriteViewModelFactory).get(FavoriteViewModel::class.java)
         favAdapter = FavAdapter(requireContext(), this)
         prefs = PreferenceHelper.customPreference(requireContext(), CUSTOM_PREF_NAME)
-//        prefs.itemDisplay="fav"
+        hasNetworkConnection = NetworkConnection.getInstance(requireContext())
     }
 
     override fun onCreateView(
@@ -69,10 +76,29 @@ class Favorite : Fragment(), OnClickListener {
         val view = inflater.inflate(R.layout.fragment_favorite, container, false)
         favRecyclerView = view.findViewById(R.id.favRecyclerView)
         addButton = view.findViewById(R.id.add_button)
-        addButton.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.navigateFromFavoriteToMaps)
+        connectionGroup = view.findViewById(R.id.connection_group)
+        noConnectionGroup = view.findViewById(R.id.no_connection_group)
+        favRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = RecyclerView.VERTICAL
+                adapter = favAdapter
+            }
         }
-        if (favoriteArgs.latitude.isNotEmpty()) {
+        addButton.setOnClickListener {
+            when (hasNetworkConnection.isOnline()) {
+                true -> {
+                    Navigation.findNavController(it).navigate(R.id.navigateFromFavoriteToMaps)
+                    Log.i("TAG", "fav long: ${favoriteArgs.longitude}")
+                    connectionGroup.visibility = View.VISIBLE
+                    noConnectionGroup.visibility = View.GONE
+                }
+                false -> {
+                    connectionGroup.visibility = View.GONE
+                    noConnectionGroup.visibility = View.VISIBLE
+                }
+            }
+        }
+        if (favoriteArgs.longitude.isNotEmpty()) {
             getWeatherOfFav(
                 favoriteArgs.latitude.toDouble(),
                 favoriteArgs.longitude.toDouble()
@@ -84,57 +110,55 @@ class Favorite : Fragment(), OnClickListener {
     override fun onResume() {
         super.onResume()
         favoriteViewModel.favorites.observe(this, Observer {
-            favList = it as MutableList<Favorite>
-            favAdapter.submitList(favList)
-            favRecyclerView.apply {
-                layoutManager = LinearLayoutManager(context).apply {
-                    orientation = RecyclerView.VERTICAL
-                    adapter = favAdapter
-                }
-            }
+            favList = it as MutableList<Welcome>
+            favAdapter.submitList(it)
             swipeItemToDeleteIt()
         })
-
     }
 
     private fun getWeatherOfFav(latitude: Double, longitude: Double) {
-        favoriteViewModel.getWeatherOfSelectedFav(latitude, longitude, requireContext())
-        geocoder = Geocoder(requireContext(), Locale.getDefault())
-        addresses = geocoder.getFromLocation(latitude, longitude, 1) as List<Address>
-
-        val state = addresses.get(0).getAdminArea()?:addresses.toString()
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        val addresses =
+            geocoder.getFromLocation(latitude, longitude, 1) as List<Address>
+        val state = addresses.get(0).getAdminArea() ?: addresses.toString()
         val country = addresses.get(0).getCountryName()
         val split = state.split(" ").toTypedArray()
         val timeZone = "${split[0]},$country"
+        favoriteViewModel.getWeatherOfSelectedFav(latitude, longitude, requireContext())
         favoriteViewModel.weatherOfSelectedCountry.observe(viewLifecycleOwner, Observer {
-            val add = Favorite(
-                favoriteArgs.latitude.toDouble(),
-                favoriteArgs.longitude.toDouble(),
-                timeZone,
-                it.current.temp,
-                it.current.weather.get(0).icon
-            )
-            addFavToDB(add)
+            it.timezone = timeZone
+            it.state = "fav"
+            addFavToDB(it)
         })
     }
 
-    override fun favDetails(favorite: Favorite) {
+    override fun favDetails(welcome: Welcome) {
 
-//        prefs.itemDisplay="fav"
-        val action = FavoriteDirections.navigateFromFavoriteToHomeScreen(
-            favorite.lat.toString(),
-            favorite.lon.toString(),
-            fromDestination = "fav"
-        )
-        Navigation.findNavController(requireView()).navigate(action)
+        when (hasNetworkConnection.isOnline()) {
+            true -> {
+                connectionGroup.visibility = View.VISIBLE
+                noConnectionGroup.visibility = View.GONE
+                val action = FavoriteDirections.navigateFromFavoriteToHomeScreen(
+                    welcome.lat.toString(),
+                    welcome.lon.toString(),
+                    fromDestination = "fav"
+                )
+                Navigation.findNavController(requireView()).navigate(action)
+            }
+            false -> {
+                connectionGroup.visibility = View.GONE
+                noConnectionGroup.visibility = View.VISIBLE
+            }
+        }
+
     }
 
-    override fun addFavToDB(favorite: Favorite) {
-        favoriteViewModel.addProductToDB(favorite)
+    override fun addFavToDB(welcome: Welcome) {
+        favoriteViewModel.addProductToDB(welcome)
     }
 
-    override fun removeFavFromDB(favorite: Favorite) {
-        favoriteViewModel.deleteProductFromDB(favorite)
+    override fun removeFavFromDB(welcome: Welcome) {
+        favoriteViewModel.deleteProductFromDB(welcome)
     }
 
     private fun swipeItemToDeleteIt() {

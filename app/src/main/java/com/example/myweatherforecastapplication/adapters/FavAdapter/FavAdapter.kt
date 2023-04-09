@@ -1,6 +1,8 @@
 package com.example.myweatherforecastapplication.adapters.FavAdapter
 
 import android.content.Context
+import android.location.Address
+import android.location.Geocoder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +16,11 @@ import com.example.myweatherforecastapplication.R
 import com.example.myweatherforecastapplication.favorite.view.OnClickListener
 import com.example.myweatherforecastapplication.model.Favorite
 import com.example.myweatherforecastapplication.model.Icon
+import com.example.myweatherforecastapplication.model.Welcome
+import java.util.*
 
 class FavAdapter(var context: Context, var onClickListener: OnClickListener) :
-    ListAdapter<Favorite, FavAdapter.FavViewHolder>(
+    ListAdapter<Welcome, FavAdapter.FavViewHolder>(
         MyDiffUtil()
     ) {
 
@@ -46,10 +50,17 @@ class FavAdapter(var context: Context, var onClickListener: OnClickListener) :
     }
 
     override fun onBindViewHolder(holder: FavViewHolder, position: Int) {
-        val currentFavItem: Favorite = getItem(position)
-        holder.weatherDegree.text = "${currentFavItem.temp}"
-        holder.countryName.text = "${currentFavItem.timeZone}"
-        val icon = currentFavItem.icon?.lowercase()
+
+        val currentFavItem: Welcome = getItem(position)
+        val geocoder = Geocoder(context, Locale.getDefault())
+        val addresses = geocoder.getFromLocation(currentFavItem.lat ?: 0.0, currentFavItem.lon ?: 0.0, 1) as List<Address>
+        val state = addresses.get(0).getAdminArea()
+        val country = addresses.get(0).getCountryName()
+        val split = state.split(" ").toTypedArray()
+        val timeZone = "${split[0]} \n $country"
+        holder.weatherDegree.text = "${currentFavItem.current?.temp}"
+        holder.countryName.text = timeZone
+        val icon = currentFavItem.current?.weather?.get(0)?.icon?.lowercase()
         val imageResource: Int =
             context.resources.getIdentifier(
                 Icon.getIcon(icon ?: "01"),
