@@ -72,7 +72,6 @@ class SettingScreen : Fragment() {
         setRadioAction(view)
         saveSettingButton.setOnClickListener {
             showDialog(view)
-
         }
 
 

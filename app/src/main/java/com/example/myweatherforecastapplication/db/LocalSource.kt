@@ -2,6 +2,7 @@ package com.example.myweatherforecastapplication.db
 
 import android.content.Context
 import android.util.Log
+import com.example.myweatherforecastapplication.model.Alert
 import com.example.myweatherforecastapplication.model.Favorite
 import com.example.myweatherforecastapplication.model.Weather
 import com.example.myweatherforecastapplication.model.Welcome
@@ -12,6 +13,10 @@ class LocalSource private constructor(context: Context) : LocalSourceInterface {
     private val favoriteDAO: FavoriteDAO by lazy {
         val dp: AppDataBase = AppDataBase.getInstance(context)
         dp.favoriteDAO()
+    }
+    private val alertDAO: AlertDAO by lazy {
+        val dp: AppDataBase = AppDataBase.getInstance(context)
+        dp.alertDAO()
     }
 
     companion object {
@@ -49,6 +54,18 @@ class LocalSource private constructor(context: Context) : LocalSourceInterface {
     override suspend fun getCurrentWeatherFromDB(): Welcome {
         return favoriteDAO.getCurrent("current").get(0)
 
+    }
+
+    override suspend fun getAllAlerts(): Flow<List<Alert>> {
+        return alertDAO.getAllAlerts()
+    }
+
+    override suspend fun insertAlert(alert: Alert) {
+        alertDAO.insertAlert(alert)
+    }
+
+    override suspend fun deleteAlert(alert: Alert) {
+        alertDAO.deleteAlert(alert)
     }
 
 }

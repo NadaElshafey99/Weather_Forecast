@@ -49,5 +49,13 @@
     <string name="save">حفظ</string>
     <string name="NoInternet">لا يوجد اتصال بالإنترنت</string>
     <string name="checkConnection">تأكد من شبكة الإنترنت</string>
+    <string name="alert">المنبه</string>
+    <string name="startDate">بداية من</string>
+    <string name="endDate">إلى</string>
+    <string name="from">من</string>
+    <string name="to">إلى</string>
+    <string name="cancel">إلغاء</string>
+    <string name="screenOverlay">برجاء الموافقة للسماح بالرسم فوق تطبيق آخر</string>
+    <string name="close_alert">إغلق</string>
 
 </resources>
