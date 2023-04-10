@@ -160,7 +160,6 @@ class HomeScreen : Fragment() {
             lifecycleScope.launch(Dispatchers.IO)
             {
                 var result = homeScreenViewModel.getCurrentWeatherFromDBNoConnection()
-
                     withContext(Dispatchers.Main) {
                         if (result != null) {
                         updateUI(result)
