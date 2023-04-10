@@ -7,6 +7,7 @@ import com.example.myweatherforecastapplication.model.RepositoryInterface
 import com.example.myweatherforecastapplication.model.Welcome
 import com.example.myweatherforecastapplication.utils.NetworkConnection
 import com.example.myweatherforecastapplication.utils.ViewState
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -28,8 +29,8 @@ class HomeScreenViewModel(
     val state = _state.asSharedFlow()
 
     init {
-        if (hasNetworkConnection.isOnline())
-            getCurrentWeather(lat, lon, context)
+        if(hasNetworkConnection.isOnline())
+          getCurrentWeather(lat, lon, context)
     }
 
     //    try {
@@ -47,7 +48,10 @@ class HomeScreenViewModel(
 //
 //    }
     private fun getCurrentWeather(lat: Double?, lon: Double?, context: Context) {
-        viewModelScope.launch(Dispatchers.IO)
+        val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+            throwable.printStackTrace()
+        }
+        viewModelScope.launch(Dispatchers.IO+coroutineExceptionHandler)
         {
             val getWeatherFromAPI = launch {
                 weatherLiveData.postValue(repository.getWeather(lat ?: 0.0, lon ?: 0.0, context))
@@ -59,13 +63,15 @@ class HomeScreenViewModel(
         }
 
     }
+
     private fun saveCurrentWeather() {
         viewModelScope.launch(Dispatchers.IO)
         {
-            weather.value?.state = "current"
-            weather.value?.let { repository.insertCurrentToDB(it) }
+            weatherLiveData.value?.state = "current"
+            weatherLiveData.value?.let { repository.insertCurrentToDB(it) }
         }
     }
+
     suspend fun getCurrentWeatherFromDBNoConnection() =
         repository.getCurrentWeatherFromDBNoConnection()
 

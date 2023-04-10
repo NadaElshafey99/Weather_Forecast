@@ -15,9 +15,6 @@ class AlertViewModel(
     private var _alerts: MutableStateFlow<List<Alert>> = MutableStateFlow(emptyList())
     val alerts: MutableStateFlow<List<Alert>> = _alerts
 
-//    private var _singleAlert: MutableStateFlow<Alert> = MutableStateFlow(Alert())
-//    val singleAlert: MutableStateFlow<List<Alert>> = _singleAlert
-
     init {
         getAlerts()
     }
@@ -46,11 +43,4 @@ class AlertViewModel(
 
     }
 
-//    private fun getAlert() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            repository.getOneAlertFromDB().collect {
-//                _singleAlert=it
-//            }
-//        }
-//    }
 }

@@ -105,7 +105,7 @@ class Alert : Fragment(), OnClickListener, DatePickerDialog.OnDateSetListener,
         val view = inflater.inflate(R.layout.fragment_alert, container, false)
         initializeUI(view)
         lifecycleScope.launch {
-            alertViewModel.alerts.collect() {
+            alertViewModel.alerts.collect {
                 alertList=it as MutableList<Alert>
                 alertAdapter.submitList(it)
             }

@@ -10,9 +10,8 @@ interface RepositoryInterface {
     suspend fun updateFavoriteToDB(welcome: Welcome)
     suspend fun deleteFavoriteToDB(welcome: Welcome)
     suspend fun insertCurrentToDB(welcome: Welcome)
-    suspend fun getCurrentWeatherFromDBNoConnection():Welcome
+    suspend fun getCurrentWeatherFromDBNoConnection():Welcome?
     suspend fun getAlerts():Flow<List<Alert>>
-//    suspend fun getOneAlertFromDB():Flow<Alert>
     suspend fun insertAlertToDB(alert:Alert)
     suspend fun deleteAlertFromDB(alert: Alert)
 
