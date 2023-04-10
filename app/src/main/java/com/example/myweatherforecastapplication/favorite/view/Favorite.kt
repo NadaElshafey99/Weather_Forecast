@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -35,10 +36,11 @@ import com.example.myweatherforecastapplication.model.Repository
 import com.example.myweatherforecastapplication.model.Welcome
 import com.example.myweatherforecastapplication.network.APIClient
 import com.example.myweatherforecastapplication.utils.NetworkConnection
+import kotlinx.coroutines.launch
 import java.util.*
 
 
-class Favorite : Fragment(), OnClickListener{
+class Favorite : Fragment(), OnClickListener {
 
     private lateinit var favRecyclerView: RecyclerView
     private lateinit var favAdapter: FavAdapter
@@ -107,11 +109,13 @@ class Favorite : Fragment(), OnClickListener{
 
     override fun onResume() {
         super.onResume()
-        favoriteViewModel.favorites.observe(this, Observer {
-            favList = it as MutableList<Welcome>
-            favAdapter.submitList(it)
-            swipeItemToDeleteIt()
-        })
+        lifecycleScope.launch {
+            favoriteViewModel.favorites.collect {
+                favList = it as MutableList<Welcome>
+                favAdapter.submitList(it)
+                swipeItemToDeleteIt()
+            }
+        }
     }
 
     private fun getWeatherOfFav(latitude: Double, longitude: Double) {

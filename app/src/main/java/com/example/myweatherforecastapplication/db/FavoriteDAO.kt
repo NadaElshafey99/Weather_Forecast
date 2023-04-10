@@ -36,6 +36,8 @@ interface FavoriteDAO {
             } else
                 insertCurrent(welcome)
         }
+        else
+            insertCurrent(welcome)
 
     }
 }

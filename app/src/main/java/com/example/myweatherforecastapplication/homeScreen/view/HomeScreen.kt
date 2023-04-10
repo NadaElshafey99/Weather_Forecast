@@ -37,6 +37,7 @@ import com.example.myweatherforecastapplication.PreferenceHelper.language
 import com.example.myweatherforecastapplication.PreferenceHelper.unit
 import com.example.myweatherforecastapplication.PreferenceHelper.windSpeedUnit
 import com.example.myweatherforecastapplication.utils.NetworkConnection
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,16 +71,16 @@ class HomeScreen : Fragment() {
     private lateinit var simpleSunrise: SimpleDateFormat
     private lateinit var homeScreenViewModel: HomeScreenViewModel
     private lateinit var homeScreenViewModelFactory: HomeScreenViewModelFactory
-    private lateinit var pressure:TextView
-    private lateinit var humidity:TextView
-    private lateinit var wind:TextView
-    private lateinit var cloud:TextView
-    private lateinit var UV:TextView
-    private lateinit var visibility:TextView
-    private lateinit var sunRise:TextView
-    private lateinit var sunSet:TextView
-    private lateinit var feelsLike:TextView
-    private lateinit var gridGroup:Group
+    private lateinit var pressure: TextView
+    private lateinit var humidity: TextView
+    private lateinit var wind: TextView
+    private lateinit var cloud: TextView
+    private lateinit var UV: TextView
+    private lateinit var visibility: TextView
+    private lateinit var sunRise: TextView
+    private lateinit var sunSet: TextView
+    private lateinit var feelsLike: TextView
+    private lateinit var gridGroup: Group
     private lateinit var okButton: Button
     private var hourlyList: MutableList<Current>? = mutableListOf()
     private var dailyList: MutableList<Daily>? = mutableListOf()
@@ -142,10 +143,13 @@ class HomeScreen : Fragment() {
     }
 
     private fun observeState() {
+        val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+            throwable.printStackTrace()
+        }
         if (hasNetworkConnection.isOnline()) {
             homeScreenViewModel.weather.observe(requireActivity()) { weather ->
                 if (weather != null) {
-                    lifecycleScope.launch(Dispatchers.Main) {
+                    lifecycleScope.launch(Dispatchers.Main+coroutineExceptionHandler) {
                         updateUI(weather)
                     }
                 } else {
@@ -153,13 +157,18 @@ class HomeScreen : Fragment() {
                 }
             }
         } else {
-            showDialog()
             lifecycleScope.launch(Dispatchers.IO)
             {
-                val result = homeScreenViewModel.getCurrentWeatherFromDBNoConnection()
-                withContext(Dispatchers.Main) {
-                    updateUI(result)
+                var result = homeScreenViewModel.getCurrentWeatherFromDBNoConnection()
+                    withContext(Dispatchers.Main) {
+                        if (result != null) {
+                        updateUI(result)
+                    } else {
+                            Toast.makeText(requireContext(), "Something Went wrong", Toast.LENGTH_LONG).show()
+                            dialog.show()
+                        }
                 }
+
 
             }
         }
@@ -181,23 +190,6 @@ class HomeScreen : Fragment() {
 
             }
         }*/
-    }
-
-    private fun showLoading() {
-
-//        binding.rvAllProducts.visibility = View.GONE
-//        binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun showData(data: Welcome) {
-//        binding.rvAllProducts.visibility = View.VISIBLE
-//        binding.progressBar.visibility = View.GONE
-//        myAdapter.submitList(data)
-    }
-
-    private fun showError(error: Throwable) {
-//        binding.progressBar.visibility = View.GONE
-//        Toast.makeText(this, error.message, Toast.LENGTH_LONG).show()
     }
 
     override fun onPause() {
@@ -247,7 +239,7 @@ class HomeScreen : Fragment() {
     }
 
     private fun updateUI(weather: Welcome) {
-        gridGroup=requireView().findViewById(R.id.grid_group)
+        gridGroup = requireView().findViewById(R.id.grid_group)
         geocoder = Geocoder(requireContext(), Locale.getDefault())
         addresses =
             geocoder.getFromLocation(weather.lat ?: 0.0, weather.lon ?: 0.0, 1) as List<Address>

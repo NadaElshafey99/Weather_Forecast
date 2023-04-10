@@ -47,17 +47,13 @@ class Repository(
         localSource.insertCurrentHome(welcome)
     }
 
-    override suspend fun getCurrentWeatherFromDBNoConnection(): Welcome{
+    override suspend fun getCurrentWeatherFromDBNoConnection(): Welcome?{
         return localSource.getCurrentWeatherFromDB()
     }
 
     override suspend fun getAlerts(): Flow<List<Alert>> {
         return localSource.getAllAlerts()
     }
-
-//    override suspend fun getOneAlertFromDB(): Flow<Alert> {
-//        TODO("Not yet implemented")
-//    }
 
     override suspend fun insertAlertToDB(alert: Alert) {
         localSource.insertAlert(alert)

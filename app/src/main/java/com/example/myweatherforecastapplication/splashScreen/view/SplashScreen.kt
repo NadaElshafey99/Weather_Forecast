@@ -33,6 +33,7 @@ import com.example.myweatherforecastapplication.PreferenceHelper.customPreferenc
 import com.example.myweatherforecastapplication.PreferenceHelper.notification
 import com.example.myweatherforecastapplication.PreferenceHelper.userLocation
 import com.google.android.gms.location.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -138,10 +139,13 @@ class SplashScreen : AppCompatActivity() {
     }
 
     private fun navigateToHomeScreen() {
+        val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+            throwable.printStackTrace()
+        }
         when (location) {
             "GPS" -> {
                 getLastLocation()
-                lifecycleScope.launch {
+                lifecycleScope.launch(coroutineExceptionHandler) {
                     if (prefs.contains(USER_LONGITUDE))
                         launchHome()
                     else {

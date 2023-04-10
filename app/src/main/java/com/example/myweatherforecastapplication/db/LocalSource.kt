@@ -51,9 +51,14 @@ class LocalSource private constructor(context: Context) : LocalSourceInterface {
         favoriteDAO.insertOrUpdate(welcome)
     }
 
-    override suspend fun getCurrentWeatherFromDB(): Welcome {
-        return favoriteDAO.getCurrent("current").get(0)
-
+    override suspend fun getCurrentWeatherFromDB(): Welcome? {
+        var returnValue: Welcome?
+        try {
+            returnValue = favoriteDAO.getCurrent("current").get(0)
+        } catch (ex: Exception) {
+            returnValue = null
+        }
+        return returnValue
     }
 
     override suspend fun getAllAlerts(): Flow<List<Alert>> {
